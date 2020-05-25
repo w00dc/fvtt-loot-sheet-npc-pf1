@@ -1,8 +1,11 @@
-# Loot Sheet NPC 5E
+# Loot Sheet NPC Pathfinder1
 
 This module adds an additional NPC sheet which can be used for loot containers such as chests. It also allows spells to be automatically converted into spell scrolls by dragging them onto this sheet. 
 
-This version was forked from Hooking's module which ended compatibility with Foundry VTT version 0.3.9 (https://gitlab.com/hooking/foundry-vtt---loot-sheet-npc). This fork should be updated by me to keep it current with Foundry VTT.
+This version was forked from Jan Ole Peek's module which doesn't support pf1 system (https://github.com/jopeek/fvtt-loot-sheet-npc-5e). 
+This fork will be maintained separately and specifically for Pathfinder 1.
+
+<p style="color:red">Development in progress ... DON'T USE YET!</p>
 
 ### Features
 
