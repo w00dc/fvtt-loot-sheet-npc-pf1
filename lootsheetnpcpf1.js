@@ -560,14 +560,10 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
    * @private
    */
   _onCyclePermissionProficiency(event) {
-    console.log("Loot Sheet | _onCyclePermissionProficiency")
     event.preventDefault();
 
     //console.log("Loot Sheet | this.actor.data.permission", this.actor.data.permission);
-
-
     let actorData = this.actor.data;
-
 
     let field = $(event.currentTarget).siblings('input[type="hidden"]');
 
@@ -588,7 +584,6 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     //console.log("Loot Sheet | Current actor: " + playerId);
 
     this._updatePermissions(actorData, playerId, newLevel, event);
-
     this._onSubmit(event);
   }
 
@@ -643,6 +638,12 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
       },
 
     };
+    
+    actorData.actor.visible = this.actor.visible
+    
+    if (!this.actor.visible) {
+      return;
+    }
 
     //console.log("Loot Sheet | Prepare Items");
     // Iterate through items, allocating to containers
@@ -660,9 +661,8 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     }
 
     // Assign and return
-    //actorData.features = features;
     actorData.actor.features = features;
-    console.log(this.actor);
+    //console.log(this.actor);
   }
 
   /* -------------------------------------------- */
@@ -847,6 +847,8 @@ Hooks.once("init", () => {
 
   console.log("Loot Sheet | here")
 
+  loadTemplates(["modules/lootsheetnpcpf1/template/npc-sheet-gmpart.html"]);
+  
   Handlebars.registerHelper('ifeq', function(a, b, options) {
     if (a == b) {
       return options.fn(this);
