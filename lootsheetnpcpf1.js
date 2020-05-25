@@ -1050,7 +1050,7 @@ Hooks.once("init", () => {
   //Register the loot sheet
   Actors.registerSheet("PF1", LootSheetPf1NPC, {
     types: ["npc"],
-    makeDefault: true
+    makeDefault: false
   });
 
 });
