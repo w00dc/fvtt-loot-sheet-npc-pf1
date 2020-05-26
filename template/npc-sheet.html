@@ -3,12 +3,12 @@
   <!-- HEADER -->
   <header class="sheet-header flexrow">
     <h1 class="charname">
-      <input name="name" type="text" value="{{actor.name}}" placeholder="Character Name" />
+      <input name="name" type="text" value="{{actor.name}}" placeholder="{{localize "ls.lootName"}}" />
     </h1>
 
     {{#if isGM}}
     <div class="charbutton">
-      <button class="price-modifier" type="price-modifier" name="price-modifier" value=""><i class="fa fa-balance-scale"></i> Price Modifier</button>
+      <button class="price-modifier" type="price-modifier" name="price-modifier" value=""><i class="fa fa-balance-scale"></i> {{localize "ls.priceModifierTitle"}}</button>
     </div>
     {{/if}}
     
@@ -27,13 +27,13 @@
     <!-- BODY -->
     <section class="sheet-content content">
       {{#unless actor.visible}}
-        <span class="warning">You don't have access to that Loot sheet anymore!</span>
+        <span class="warning">{{localize "ls.noAccesToSheet"}}</span>
       {{/unless}}
       
       {{#if actor.visible}}
       <nav class="sheet-navigation tabs" data-group="primary">
-        <a class="item active" data-tab="inventory">Inventory</a>
-        <a class="item" data-tab="biography">Biography</a>
+        <a class="item active" data-tab="inventory">{{localize "ls.inventory"}}</a>
+        <a class="item" data-tab="biography">{{localize "ls.biography"}}</a>
       </nav>
       <section class="primary-body">
         <div class="tab biography" data-tab="biography" data-group="primary">
@@ -46,7 +46,7 @@
             <div class="inventory-filters">
               <ol class="currency flexrow">
                 <h3>
-                  Currency
+                  {{localize "ls.currency"}}
                 </h3>
                 {{#each data.currency as |c i|}}
                   <label class="denomination {{i}}">{{ lookup ../config.currencies i }}</label>
@@ -61,8 +61,8 @@
                     <h3 class="item-name">{{section.label}}</h3>
                     {{#if ../owner}}
                     <div class="item-controls">
-                      <a class="item-control item-create" title="Create Item" data-type="{{section.type}}">
-                      <i class="fas fa-plus"></i> Add
+                      <a class="item-control item-create" title="{{localize "ls.createItem"}}" data-type="{{section.type}}">
+                      <i class="fas fa-plus"></i> {{localize "ls.add"}}
                       </a>
                     </div>
                     {{/if}}
@@ -75,23 +75,23 @@
                           <h4>{{item.name}}</h4>
                         </div>
                         <div class="item-quantity">
-                          <i class="fas fa-box" title="Quantity"></i> {{item.data.quantity}}
+                          <i class="fas fa-box" title="{{localize "ls.quantity"}}"></i> {{item.data.quantity}}
                         </div>
                         <div class="item-price">
-                          <i class="fas fa-coins" title="Price (in gp)"></i> {{ lootsheetprice item.data.price ../../priceModifier }}
+                          <i class="fas fa-coins" title="{{localize "ls.price"}}"></i> {{ lootsheetprice item.data.price ../../priceModifier }}
                         </div>
                         <div class="item-controls">
                           {{#ifeq ../../lootsheettype "Loot"}}
-                            <a class="item-control item-loot" title="Loot Item"><i class="fas fa-gem"></i></a>
+                            <a class="item-control item-loot" title="{{localize "ls.lootItem"}}"><i class="fas fa-gem"></i></a>
                           {{/ifeq}}
                           
                           {{#ifeq ../../lootsheettype "Merchant"}}
-                            <a class="item-control item-buy" title="Buy Item"><i class="fas fa-dollar-sign"></i></a>
+                            <a class="item-control item-buy" title="{{localize "ls.buyItem"}}"><i class="fas fa-dollar-sign"></i></a>
                           {{/ifeq}} 
                           
                           {{#if ../../owner}}
-                            <a class="item-control item-edit" title="Edit Item"><i class="fas fa-edit"></i></a>
-                            <a class="item-control item-delete" title="Delete Item"><i class="fas fa-trash"></i></a>
+                            <a class="item-control item-edit" title="{{localize "ls.editItem"}}"><i class="fas fa-edit"></i></a>
+                            <a class="item-control item-delete" title="{{localize "ls.deleteItem"}}"><i class="fas fa-trash"></i></a>
                           {{/if}}
                         </div>
                       </li>

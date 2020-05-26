@@ -7,6 +7,19 @@
   "systems": ["pf1"],
   "esmodules": ["/lootsheetnpcpf1.js"],
   "styles": ["/css/lootsheetnpcpf1.css"],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    },
+    {
+      "lang": "fr",
+      "name": "French",
+      "path": "lang/fr.json"
+    }
+  ],
+  "socket": true,
   "url": "https://github.com/SvenWerlen/fvtt-loot-sheet-npc-pf1",
   "download": "https://github.com/SvenWerlen/fvtt-loot-sheet-npc-pf1/archive/v-0.2.0.zip",
   "manifest": "https://raw.githubusercontent.com/SvenWerlen/fvtt-loot-sheet-npc-pf1/master/module.json",

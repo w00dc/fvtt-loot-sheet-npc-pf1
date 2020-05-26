@@ -1,25 +1,25 @@
-            <h3 class="gm-section">GM Settings</h3>
+            <h3 class="gm-section">{{localize "ls.gmSettings"}}</h3>
 
             <!-- GM SETTINGS -->
             <div class="gm-settings" data-group="sidebar" data-tab="gm-settings">
-                <h3 class="gm-header"><i class="fas fa-id-card"></i> Type <i class="fas fa-info-circle help" onclick="$('.sheet-type-info').toggle();"></i></h3>
-                <div class="sheet-type-info">Loot: allows for distribution of coins across players<br>Merchant: allows players to purchase items directly from the sheet.</div>
+                <h3 class="gm-header"><i class="fas fa-id-card"></i> {{localize "ls.type"}} <i class="fas fa-info-circle help" onclick="$('.sheet-type-info').toggle();"></i></h3>
+                <div class="sheet-type-info">{{localize "ls.typeInfo"}}</div>
                 <div class="sheet-types">
                     <div class="flexrow">
-                        <div class="flexcol"><h4 class="sheet-name">Type of sheet: </h4></div>
+                        <div class="flexcol"><h4 class="sheet-name">{{localize "ls.typeOfSheet"}}:</h4></div>
                         <div class="flexcol">
                             <select class="sheet-type" name="data.flags.lootsheetnpcPf1.lootsheettype">
                                 {{#select data.flags.lootsheetnpcPf1.lootsheettype}}
-                                    <option value="Loot">Loot</option>
-                                    <option value="Merchant">Merchant</option>
+                                    <option value="Loot">{{localize "ls.typeLoot"}}</option>
+                                    <option value="Merchant">{{localize "ls.typeMerchant"}}</option>
                                 {{/select}}
                             </select>
                         </div>
                     </div>
                 </div>
                 
-                <h3 class="gm-header"><i class="fas fa-users"></i> Permissions <i class="fas fa-info-circle help" onclick="$('.permission-info').toggle();"></i></h3>
-                <div class="permission-info">Ensure players have selected a character via the Player Configuration (right-click player in bottom left) menu.</div>
+                <h3 class="gm-header"><i class="fas fa-users"></i> {{localize "ls.permissions"}} <i class="fas fa-info-circle help" onclick="$('.permission-info').toggle();"></i></h3>
+                <div class="permission-info">{{localize "ls.permissionsInfo"}}</div>
                 <ol class="permissions-list">
                     {{#each actor.flags.loot.players as |player p|}}
                         <li class="permission" data-skill="{{p}}">
@@ -31,24 +31,24 @@
                 </ol>
 
                 {{#ifeq lootsheettype "Loot"}}
-                    <h3 class="gm-header"><i class="fas fa-coins"></i> Coin Distribution</h3>
+                    <h3 class="gm-header"><i class="fas fa-coins"></i> {{localize "ls.coinDistribution"}}</h3>
                     <ol class="coins-list">
                         {{#each actor.flags.loot.currency as |c i|}}
                             <li class="denomination {{i}}">
                                 <label>{{ lookup ../config.currencies i }}:</label>
-                                <h4 class="denomination-value">{{c.value}} each</h4>
+                                <h4 class="denomination-value">{{c.value}} {{localize "ls.each"}}</h4>
                             </li>
                         {{/each}}
                     </ol>
-                    <button class= "split-coins" type="split-coins" name="split-coins" value="1"><i class="fa fa-coins"></i> Split {{actor.flags.loot.ownerCount}} Ways</button>
+                    <button class= "split-coins" type="split-coins" name="split-coins" value="1"><i class="fa fa-coins"></i> {{localize "ls.splitBy"}} {{actor.flags.loot.ownerCount}}</button>
                 {{/ifeq}}
 
                 {{#ifeq lootsheettype "Merchant"}}
-                    <h3 class="gm-header"><i class="fas fa-balance-scale"></i> Merchant Settings <i class="fas fa-info-circle help" onclick="$('.merchant-settings-info').toggle();"></i></h3>
-                    <div class="merchant-settings-info">Replace this merchant's inventory with a random number of items from a Rollable Table. Specify the Rollable Table's name, along with how a formula for how many different items to add (Shop Qty Formula), and a formula for determining how many of each item to add (Item Qty Formula).</div>
+                    <h3 class="gm-header"><i class="fas fa-balance-scale"></i> {{localize "ls.merchantSettings"}} <i class="fas fa-info-circle help" onclick="$('.merchant-settings-info').toggle();"></i></h3>
+                    <div class="merchant-settings-info">{{localize "ls.merchantInfo"}}</div>
                     <div class="merchant-settings">
                         <div class="flexrow">
-                            <div class="flexcol"><h4>Rollable Table: </h4></div>
+                            <div class="flexcol"><h4>{{localize "ls.rollableTable"}}: </h4></div>
                             <div class="flexcol">
                                 <!-- <input name="data.flags.lootsheetnpcPf1.rolltable" type="text" data-dtype="String" placeholder="e.g. MyRollTable" value="{{data.flags.lootsheetnpcPf1.rolltable}}"/> -->
                                 <select class="sheet-rolltable" name="data.flags.lootsheetnpcPf1.rolltable">
@@ -61,14 +61,14 @@
                             </div>
                         </div>
                         <div class="flexrow">
-                            <div class="flexcol"><h4>Shop Qty Formula: </h4></div>
+                            <div class="flexcol"><h4>{{localize "ls.shopQtyFormula"}}: </h4></div>
                             <div class="flexcol"><input name="data.flags.lootsheetnpcPf1.shopQty" type="text" data-dtype="String" placeholder="e.g. 1d20" value="{{data.flags.lootsheetnpcPf1.shopQty}}"/></div>
                         </div>
                         <div class="flexrow">
-                            <div class="flexcol"><h4>Item Qty Formula: </h4></div>
+                            <div class="flexcol"><h4>{{localize "ls.itemQtyFormula"}}: </h4></div>
                             <div class="flexcol"><input name="data.flags.lootsheetnpcPf1.itemQty" type="text" data-dtype="String" placeholder="e.g. 1d4" value="{{data.flags.lootsheetnpcPf1.itemQty}}"/></div>
                         </div>
                     </div>
-                    <button class="update-inventory" type="update-inventory" name="update-inventory" value="1"><i class="fas fa-balance-scale"></i> Update Shop Inventory</button>
+                    <button class="update-inventory" type="update-inventory" name="update-inventory" value="1"><i class="fas fa-balance-scale"></i> {{localize "ls.updateShopInventory"}} </button>
                 {{/ifeq}}
             </div>

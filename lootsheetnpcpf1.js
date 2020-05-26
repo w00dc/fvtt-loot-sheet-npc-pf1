@@ -15,23 +15,23 @@ class QuantityDialog extends Dialog {
 
     let applyChanges = false;
     super({
-      title: "Quantity",
+      title: game.i18n.localize("ls.quantity"),
       content: `
             <form>
                 <div class="form-group">
-                    <label>Quantity:</label>
+                    <label>` + game.i18n.localize("ls.quantity") + `:</label>
                     <input type=number min="1" id="quantity" name="quantity" value="1">
                 </div>
             </form>`,
       buttons: {
         yes: {
           icon: "<i class='fas fa-check'></i>",
-          label: options.acceptLabel ? options.acceptLabel : "Accept",
+          label: options.acceptLabel ? options.acceptLabel : game.i18n.localize("ls.accept"),
           callback: () => applyChanges = true
         },
         no: {
           icon: "<i class='fas fa-times'></i>",
-          label: "Cancel"
+          label: game.i18n.localize("ls.cancel")
         },
       },
       default: "yes",
@@ -41,7 +41,7 @@ class QuantityDialog extends Dialog {
 
           if (isNaN(quantity)) {
             console.log("Loot Sheet | Item quantity invalid");
-            return ui.notifications.error(`Item quantity invalid.`);
+            return ui.notifications.error(game.i18n.localize("ERROR.lsItemInvalidQuantity"));
           }
 
           callback(quantity);
@@ -129,8 +129,8 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
    * @param html {HTML}   The prepared HTML object ready to be rendered into the DOM
    */
   activateListeners(html) {
-
-    console.log("Loot Sheet | activateListeners")
+    //console.log("Loot Sheet | activateListeners")
+    
     super.activateListeners(html);
     if (this.options.editable) {
       // Toggle Permissions
@@ -168,7 +168,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
    */
   async _merchantSettingChange(event, html) {
     event.preventDefault();
-    console.log("Loot Sheet | Merchant settings changed");
+    //console.log("Loot Sheet | Merchant settings changed");
 
     const moduleNamespace = "lootsheetnpcpf1";
     const expectedKeys = ["rolltable", "shopQty", "itemQty"];
@@ -177,7 +177,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
 
     if (expectedKeys.indexOf(targetKey) === -1) {
       console.log(`Loot Sheet | Error changing stettings for "${targetKey}".`);
-      return ui.notifications.error(`Error changing stettings for "${targetKey}".`);
+      return ui.notifications.error(game.i18n.format("ERROR.lsChangingSettingsFor", {name: targetKey}));
     }
 
     if (event.target.value) {
@@ -195,11 +195,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
    */
   async _merchantInventoryUpdate(event, html) {
     event.preventDefault();
-
-
-    //return this._createRollTable();
-
-    console.log("Loot Sheet | _merchantInventoryUpdate")
+    //console.log("Loot Sheet | _merchantInventoryUpdate")
 
     const moduleNamespace = "lootsheetnpcpf1";
     const rolltableName = this.actor.getFlag(moduleNamespace, "rolltable");
@@ -209,7 +205,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     let rolltable = game.tables.getName(rolltableName);
     if (!rolltable) {
       console.log(`Loot Sheet | No Rollable Table found with name "${rolltableName}".`);
-      return ui.notifications.error(`No Rollable Table found with name "${rolltableName}".`);
+      return ui.notifications.error(game.i18n.format("ERROR.lsChangingSettingsFor", {name: rolltableName}));
     }
 
     let clearInventory = game.settings.get("lootsheetnpcpf1", "clearInventory");
@@ -233,7 +229,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
       //console.log(newItem);
       if (!newItem || newItem === null) {
         console.log(`Loot Sheet | No item found "${rollResult.results[0].resultId}".`);
-        return ui.notifications.error(`No item found "${rollResult.results[0].resultId}".`);
+        return ui.notifications.error(game.i18n.format("ERROR.lsChangingSettingsFor", {item: rollResult.results[0].resultId}));
       }
 
       let itemQtyRoll = new Roll(itemQtyFormula);
@@ -246,8 +242,8 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
   }
 
   _createRollTable() {
-
-    console.log("Loot Sheet | _createRollTable")
+    //console.log("Loot Sheet | _createRollTable")
+    
     let type = "weapon";
 
     game.packs.map(p => p.collection);
@@ -302,7 +298,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
    */
   async _changeSheetType(event, html) {
     event.preventDefault();
-    console.log("Loot Sheet | Sheet Type changed", event);
+    //console.log("Loot Sheet | Sheet Type changed", event);
 
     let currentActor = this.actor;
 
@@ -322,7 +318,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
    */
   _buyItem(event) {
     event.preventDefault();
-    console.log("Loot Sheet | _buyItem")
+    //console.log("Loot Sheet | _buyItem")
 
     let targetGm = null;
     game.users.forEach((u) => {
@@ -332,11 +328,11 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     });
 
     if (!targetGm) {
-      return ui.notifications.error("No active GM on your scene, they must be online and on the same scene to purchase an item.");
+      return ui.notifications.error(game.i18n.localize("ERROR.lsNoActiveGM"));
     }
 
     if (this.token === null) {
-      return ui.notifications.error(`You must purchase items from a token.`);
+      return ui.notifications.error(game.i18n.localize("ERROR.lsPurchaseFromToken"));
     }
     if (game.user.actorId) {
       let itemId = $(event.currentTarget).parents(".item").attr("data-item-id");
@@ -353,12 +349,12 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
         console.log("LootSheetPf1", "Sending buy request to " + targetGm.name, packet);
         game.socket.emit(LootSheetPf1NPC.SOCKET, packet);
       }, {
-        acceptLabel: "Purchase"
+        acceptLabel: game.i18n.localize("ls.purchase")
       });
       d.render(true);
     } else {
       console.log("Loot Sheet | No active character for user");
-      return ui.notifications.error(`No active character for user.`);
+      return ui.notifications.error(game.i18n.localize("ERROR.lsNoActiveCharacter"));
     }
   }
 
@@ -370,7 +366,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
    */
   _lootItem(event) {
     event.preventDefault();
-    console.log("Loot Sheet | _lootItem")
+    //console.log("Loot Sheet | _lootItem")
 
     let targetGm = null;
     game.users.forEach((u) => {
@@ -380,11 +376,12 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     });
 
     if (!targetGm) {
-      return ui.notifications.error("No active GM on your scene, they must be online and on the same scene to purchase an item.");
+      return ui.notifications.error(game.i18n.localize("ERROR.lsNoActiveGM"));
     }
 
+    console.log(this)
     if (this.token === null) {
-      return ui.notifications.error(`You must loot items from a token.`);
+      return ui.notifications.error(game.i18n.localize("ERROR.lsLootFromToken"));
     }
     if (game.user.actorId) {
       let itemId = $(event.currentTarget).parents(".item").attr("data-item-id");
@@ -401,12 +398,12 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
         console.log("LootSheetPf1", "Sending loot request to " + targetGm.name, packet);
         game.socket.emit(LootSheetPf1NPC.SOCKET, packet);
       }, {
-        acceptLabel: "Loot"
+        acceptLabel: game.i18n.localize("ls.loot")
       });
       d.render(true);
     } else {
       console.log("Loot Sheet | No active character for user");
-      return ui.notifications.error(`No active character for user.`);
+      return ui.notifications.error(game.i18n.localize("ERROR.lsNoActiveCharacter"));
     }
   }
 
@@ -418,39 +415,34 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
    */
   async _priceModifier(event) {
     event.preventDefault();
-    console.log("Loot Sheet | _priceModifier")
-    //console.log("Loot Sheet | Price Modifier clicked");
-    //console.log(this.actor.isToken);
+    //console.log("Loot Sheet | _priceModifier")
 
     let priceModifier = await this.actor.getFlag("lootsheetnpcpf1", "priceModifier");
     if (!priceModifier) priceModifier = 1.0;
 
     priceModifier = Math.round(priceModifier * 100);
 
-    var html = "<p>Use this slider to increase or decrease the price of all items in this inventory. <i class='fa fa-question-circle' title='This uses a percentage factor where 100% is the current price, 0% is 0, and 200% is double the price.'></i></p>";
-    html += '<p><input name="price-modifier-percent" id="price-modifier-percent" type="range" min="0" max="200" value="' + priceModifier + '" class="slider"></p>';
-    html += '<p><label>Percentage:</label> <input type=number min="0" max="200" value="' + priceModifier + '" id="price-modifier-percent-display"></p>';
-    html += '<script>var pmSlider = document.getElementById("price-modifier-percent"); var pmDisplay = document.getElementById("price-modifier-percent-display"); pmDisplay.value = pmSlider.value; pmSlider.oninput = function() { pmDisplay.value = this.value; }; pmDisplay.oninput = function() { pmSlider.value = this.value; };</script>';
-
-    let d = new Dialog({
-      title: "Price Modifier",
-      content: html,
-      buttons: {
-        one: {
-          icon: '<i class="fas fa-check"></i>',
-          label: "Update",
-          callback: () => this.actor.setFlag("lootsheetnpcpf1", "priceModifier", document.getElementById("price-modifier-percent").value / 100)
+    renderTemplate("modules/lootsheetnpcpf1/template/dialog-price-modifier.html", {'priceModifier': priceModifier}).then(html => {
+      new Dialog({
+        title: game.i18n.localize("ls.priceModifierTitle"),
+        content: html,
+        buttons: {
+          one: {
+            icon: '<i class="fas fa-check"></i>',
+            label: game.i18n.localize("ls.update"),
+            callback: () => this.actor.setFlag("lootsheetnpcpf1", "priceModifier", document.getElementById("price-modifier-percent").value / 100)
+          },
+          two: {
+            icon: '<i class="fas fa-times"></i>',
+            label: game.i18n.localize("ls.cancel"),
+            callback: () => console.log("Loot Sheet | Price Modifier Cancelled")
+          }
         },
-        two: {
-          icon: '<i class="fas fa-times"></i>',
-          label: "Cancel",
-          callback: () => console.log("Loot Sheet | Price Modifier Cancelled")
-        }
-      },
-      default: "two",
-      close: () => console.log("Loot Sheet | Price Modifier Closed")
+        default: "two",
+        close: () => console.log("Loot Sheet | Price Modifier Closed")
+      }).render(true);
     });
-    d.render(true);
+
   }
 
   /* -------------------------------------------- */
@@ -561,8 +553,8 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
    */
   _onCyclePermissionProficiency(event) {
     event.preventDefault();
-
     //console.log("Loot Sheet | this.actor.data.permission", this.actor.data.permission);
+    
     let actorData = this.actor.data;
 
     let field = $(event.currentTarget).siblings('input[type="hidden"]');
@@ -603,36 +595,26 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
    * @private
    */
   _prepareItems(actorData) {
-    console.log("Loot Sheet | _prepareItems")
+    //console.log("Loot Sheet | _prepareItems")
     // Actions
     const features = {
       weapons: {
-        label: "Weapons",
+        label: game.i18n.localize("ls.weapons"),
         items: [],
         type: "weapon"
       },
       equipment: {
-        label: "Equipment",
+        label: game.i18n.localize("ls.equipment"),
         items: [],
         type: "equipment"
       },
       consumables: {
-        label: "Consumables",
+        label: game.i18n.localize("ls.consumables"),
         items: [],
         type: "consumable"
       },
-      tools: {
-        label: "Tools",
-        items: [],
-        type: "tool"
-      },
-      containers: {
-        label: "Containers",
-        items: [],
-        type: "container"
-      },
       loot: {
-        label: "Loot",
+        label: game.i18n.localize("ls.loot"),
         items: [],
         type: "loot"
       },
@@ -688,11 +670,11 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
    * @private
    */
   _getPermissionDescription(level) {
-    console.log("Loot Sheet | _getPermissionDescription")
+    //console.log("Loot Sheet | _getPermissionDescription")
     const description = {
-      0: "None (cannot access sheet)",
-      2: "Observer (access to sheet but can only purchase items if merchant sheet type)",
-      3: "Owner (can access items and share coins)"
+      0: game.i18n.localize("ls.permissionNoaccess"),
+      2: game.i18n.localize("ls.permissionObserver"),
+      3: game.i18n.localize("ls.permissionOwner"),
     };
     return description[level];
   }
@@ -705,7 +687,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
    * @private
    */
   _prepareGMSettings(actorData) {
-    console.log("Loot Sheet | _prepareGMSettings")
+    //console.log("Loot Sheet | _prepareGMSettings")
 
     const players = [],
       owners = [];
@@ -793,9 +775,9 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
  */
 Hooks.on('preCreateOwnedItem', (actor, item, data) => {
 
-  // console.log("Loot Sheet | actor", actor);
-  // console.log("Loot Sheet | item", item);
-  // console.log("Loot Sheet | data", data);
+  //console.log("Loot Sheet | actor", actor);
+  //console.log("Loot Sheet | item", item);
+  //console.log("Loot Sheet | data", data);
 
   if (!actor) throw new Error(`Parent Actor ${actor._id} not found`);
 
@@ -803,41 +785,30 @@ Hooks.on('preCreateOwnedItem', (actor, item, data) => {
   if (actor.data.type === "character") return;
 
   // If the actor is using the LootSheetPf1NPC then check in the item is a spell and if so update the name.
-  if ((actor.data.flags.core || {}).sheetClass === "pf1.LootSheetPf1NPC") {
+  if ((actor.data.flags.core || {}).sheetClass === "PF1.LootSheetPf1NPC") {
     if (item.type === "spell") {
-      //console.log("Loot Sheet | dragged spell item", item);
+      console.log("Loot Sheet | dragged spell item", item);
 
-      let changeScrollIcon = game.settings.get("lootsheetnpcpf1", "changeScrollIcon");
-
-      if (changeScrollIcon) item.img = "modules/lootsheetnpcpf1/icons/Scroll" + item.data.level + ".png";
-
-      //console.log("Loot Sheet | check changeScrollIcon", changeScrollIcon);
-
-      item.name = "Scroll of " + item.name;
+      item.name = game.i18n.format("ls.scrollof", {name: item.name})
       item.type = "consumable";
-      item.data.price = Math.round(10 * Math.pow(2.6, item.data.level));
-      //console.log("Loot Sheet | price of scroll", item.data.price);
-      item.data.autoDestroy = {
-        label: "Destroy on Empty",
-        type: "Boolean",
-        value: true
+      item.data.quantity = 1
+      item.data.uses = {
+        per: "single",
+        autoDeductCharges: true
       }
-      item.data.autoUse = {
-        label: "Consume on Use",
-        type: "Boolean",
-        value: true
+      item.data.activation = {
+        cost: 1,
+        type: "standard"
       }
-      item.data.charges = {
-        label: "Charges",
-        max: 1,
-        type: "Number",
-        value: 1
-      }
-      item.data.consumableType = {
-        label: "Consumable Type",
-        type: "String",
-        value: "scroll"
-      }
+      
+      if (item.data.level >= 0 && item.data.level <= 9) {
+        const changeScrollIcon = game.settings.get("lootsheetnpcpf1", "changeScrollIcon");
+        if (changeScrollIcon) item.img = "modules/lootsheetnpcpf1/icons/Scroll" + item.data.level + ".png";
+        
+        // TODO: improve to have pricing per class
+        const pricePerLevel = [ 13, 25, 150, 375, 700, 1125, 1650, 2275, 3000, 3825 ]
+        item.data.price = pricePerLevel[item.data.level];
+      }      
     }
   } else return;
 
@@ -847,7 +818,9 @@ Hooks.once("init", () => {
 
   console.log("Loot Sheet | here")
 
-  loadTemplates(["modules/lootsheetnpcpf1/template/npc-sheet-gmpart.html"]);
+  loadTemplates([
+    "modules/lootsheetnpcpf1/template/npc-sheet-gmpart.html", 
+    "modules/lootsheetnpcpf1/template/dialog-price-modifier.html"]);
   
   Handlebars.registerHelper('ifeq', function(a, b, options) {
     if (a == b) {
@@ -857,8 +830,8 @@ Hooks.once("init", () => {
   });
 
   game.settings.register("lootsheetnpcpf1", "changeScrollIcon", {
-    name: "Change icon for Spell Scrolls?",
-    hint: "Changes the icon for spell scrolls to a scroll icon. If left unchecked, retains the spell's icon.",
+    name: game.i18n.localize("SETTINGS.lsChangeIconForSpellScrollsTitle"), 
+    hint: game.i18n.localize("SETTINGS.lsChangeIconForSpellScrollsHint"), 
     scope: "world",
     config: true,
     default: true,
@@ -866,8 +839,8 @@ Hooks.once("init", () => {
   });
 
   game.settings.register("lootsheetnpcpf1", "buyChat", {
-    name: "Display chat message for purchases?",
-    hint: "If enabled, a chat message will display purchases of items from the loot sheet.",
+    name: game.i18n.localize("SETTINGS.lsPurchaseChatMessageTitle"),
+    hint: game.i18n.localize("SETTINGS.lsPurchaseChatMessageHint"),
     scope: "world",
     config: true,
     default: true,
@@ -875,8 +848,8 @@ Hooks.once("init", () => {
   });
 
   game.settings.register("lootsheetnpcpf1", "clearInventory", {
-    name: "Clear inventory?",
-    hint: "If enabled, all existing items will be removed from the Loot Sheet before adding new items from the rollable table. If disabled, existing items will remain.",
+    name: game.i18n.localize("SETTINGS.lsClearInventoryTitle"),
+    hint: game.i18n.localize("SETTINGS.lsClearInventoryHint"),
     scope: "world",
     config: true,
     default: false,
@@ -955,15 +928,14 @@ Hooks.once("init", () => {
 
     chatMessage(
       container, looter,
-      `${looter.name} looted ${moved.quantity} x ${moved.item.name}.`,
+      game.i18n.format("ls.chatLoot", { buyer: looter.name, quantity: moved.quantity, name: moved.item.name }),
       moved.item);
-
   }
 
   function transaction(seller, buyer, itemId, quantity) {
     console.log("Loot Sheet | Transaction")
 
-    let sellItem = seller.transaction("OwnedItem", itemId);
+    let sellItem = seller.getEmbeddedEntity("OwnedItem", itemId);
 
 
     // If the buyer attempts to buy more then what's in stock, buy all the stock.
@@ -980,7 +952,6 @@ Hooks.once("init", () => {
     const conversionRate = {
       "pp": 10,
       "gp": 1,
-      "ep": 0.5,
       "sp": 0.1,
       "cp": 0.01
     };
@@ -991,7 +962,7 @@ Hooks.once("init", () => {
     }
 
     if (itemCost > buyerFundsAsGold) {
-      errorMessageToActor(buyer, `Not enough funds to purchase item.`);
+      errorMessageToActor(buyer, game.i18n.localize("ERROR.lsNotEnougFunds"));
       return;
     }
 
@@ -1010,7 +981,7 @@ Hooks.once("init", () => {
 
     chatMessage(
       seller, buyer,
-      `${buyer.name} purchases ${quantity} x ${moved.item.name} for ${itemCost}gp.`,
+      game.i18n.format("ls.chatPurchase", { buyer: buyer.name, quantity: quantity, name: moved.item.name, cost: itemCost }),
       moved.item);
   }
 
@@ -1024,8 +995,8 @@ Hooks.once("init", () => {
         if (buyer && seller && seller.actor) {
           transaction(seller.actor, buyer, data.itemId, data.quantity);
         } else if (!seller) {
-          errorMessageToActor(buyer, "GM not available, the GM must on the same scene to purchase an item.")
-          ui.notifications.error("Player attempted to purchase an item on a different scene.");
+          errorMessageToActor(buyer, game.i18n.localize("ERROR.lsNoActiveGM"))
+          ui.notifications.error(game.i18n.localize("ERROR.lsPurchaseAttempt"));
         }
       }
 
@@ -1036,8 +1007,8 @@ Hooks.once("init", () => {
         if (looter && container && container.actor) {
           lootItem(container.actor, looter, data.itemId, data.quantity);
         } else if (!container) {
-          errorMessageToActor(looter, "GM not available, the GM must on the same scene to loot an item.")
-          ui.notifications.error("Player attempted to loot an item on a different scene.");
+          errorMessageToActor(looter, game.i18n.localize("ERROR.lsNoActiveGM"))
+          ui.notifications.error(game.i18n.localize("ERROR.lsLootAttempt"));
         }
       }
     }
