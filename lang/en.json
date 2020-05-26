@@ -7,7 +7,7 @@
   "SETTINGS.lsChangeIconForSpellScrollsHint": "Changes the icon for spell scrolls to a scroll icon. If left unchecked, retains the spell's icon.",
   
   "ERROR.lsItemInvalidQuantity": "Item quantity invalid.",
-  "ERROR.lsChangingSettingsFor": "Error changing stettings for \"{name}\".",
+  "ERROR.lsChangingSettingsFor": "Error changing settings for \"{name}\".",
   "ERROR.lsNoRollableTableFound": "No Rollable Table found with name \"{name}\".",
   "ERROR.lsNoItemFound": "No item found  \"{item}\".",
   "ERROR.lsNoActiveGM": "No active GM on your scene, he must be online and on the same scene.",
