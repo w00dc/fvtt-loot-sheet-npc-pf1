@@ -103,11 +103,15 @@
 	width: 95%;
 }
 
+.loot-sheet-npc .gm-settings .update-inventory {
+	width: 95%;
+}
+
 .loot-sheet-npc.sheet .window-content form {
 	overflow: auto !important;
 }
 
-img.sheet-profile {
+.loot-sheet-npc img.sheet-profile {
 	border: none;
 	max-width: 220px;
 	max-height: 220px;
