@@ -5,7 +5,7 @@ This module adds an additional NPC sheet which can be used for loot containers s
 This version was forked from Jan Ole Peek's module which doesn't support pf1 system (https://github.com/jopeek/fvtt-loot-sheet-npc-5e). 
 This fork will be maintained separately and specifically for Pathfinder 1.
 
-<p style="color:red">Development in progress ... DON'T USE YET!</p>
+<p style="color:red">Development in progress ...</p>
 
 ### Features
 
@@ -43,11 +43,10 @@ Dragging of spells into the sheet will automatically turn them into scrolls.
 ![demo_scrolls](https://thumbs.gfycat.com/LividAccurateFluke-size_restricted.gif)
 
 ### Compatibility:
-- Tested with FVTT v0.5.3.
+- Tested with FVTT v0.6.0.
 
 ### Known Issues:
 - Dragging an item out of the sheet does not actually remove it from the sheet's inventory.
-- Price Modifier currently doesn't save owned item prices properly on Tokens, so the button will not appear on tokens. Believe this to be related to a FoundryVTT issue. 
 - Currently can't get back to original prices, especially if percentage is set to 0.
 
 ### Installation Instructions
@@ -60,4 +59,4 @@ To install a module, follow these instructions:
 
 ### Feedback
 
-If you have any suggestions or feedback, please contact me on Discord (ChalkOne#0156).
+If you have any suggestions or feedback, please contact me on Discord (Dorgendubal#3348).
