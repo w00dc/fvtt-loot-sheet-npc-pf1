@@ -132,6 +132,15 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     //console.log("Loot Sheet | activateListeners")
     
     super.activateListeners(html);
+    
+    // Remove dragging capability
+    let handler = ev => this._onDragItemStart(ev);
+    html.find('li.item').each((i, li) => {
+      if ( li.classList.contains("inventory-header") ) return;
+      li.setAttribute("draggable", false);
+      li.removeEventListener("dragstart", handler);
+    });
+    
     if (this.options.editable) {
       // Toggle Permissions
       html.find('.permission-proficiency').click(ev => this._onCyclePermissionProficiency(ev));
