@@ -70,6 +70,10 @@
   "ls.rollableTable": "Rollable Table",
   "ls.shopQtyFormula": "Shop Qty Formula",
   "ls.itemQtyFormula": "Item Qty Formula",
-  "ls.updateShopInventory": "Update Shop Inventory"
+  "ls.updateShopInventory": "Update Shop Inventory",
+  
+  "ls.splitcoins": " {quantity} {currency}",
+  "ls.receives": "{actor} receives:" 
+  
   
 }

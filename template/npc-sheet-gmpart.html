@@ -36,7 +36,7 @@
                         {{#each actor.flags.loot.currency as |c i|}}
                             <li class="denomination {{i}}">
                                 <label>{{ lookup ../config.currencies i }}:</label>
-                                <h4 class="denomination-value">{{c.value}} {{localize "ls.each"}}</h4>
+                                <h4 class="denomination-value">{{c}} {{localize "ls.each"}}</h4>
                             </li>
                         {{/each}}
                     </ol>

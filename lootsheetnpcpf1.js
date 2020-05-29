@@ -391,7 +391,6 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
       return ui.notifications.error(game.i18n.localize("ERROR.lsNoActiveGM"));
     }
 
-    console.log(this)
     if (this.token === null) {
       return ui.notifications.error(game.i18n.localize("ERROR.lsLootFromToken"));
     }
@@ -463,7 +462,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
    * Handle distribution of coins
    * @private
    */
-  _distributeCoins(event) {
+  async _distributeCoins(event) {
     event.preventDefault();
     //console.log("Loot Sheet | Split Coins clicked");
 
@@ -491,15 +490,16 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     //console.log("Loot Sheet | Currency data", currencySplit);
     for (let c in currencySplit) {
       if (owners.length)
-        currencySplit[c].value = Math.floor(currencySplit[c].value / owners.length);
+        currencySplit[c] = Math.floor(currencySplit[c] / owners.length);
       else
-        currencySplit[c].value = 0
+        currencySplit[c] = 0
         
-      currencyRemains[c].value -= currencySplit[c].value * owners.length
-      console.log(currencyRemains[c])
+      currencyRemains[c] -= currencySplit[c] * owners.length
     }
-
+    
     // add currency to actors existing coins
+    const currencyLabels = (await this.getData()).config.currencies
+      
     let msg = [];
     for (let u of owners) {
       //console.log("Loot Sheet | u of owners", u);
@@ -512,13 +512,13 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
       //console.log("Loot Sheet | Current Currency", currency);
       for (let c in currency) {
         // add msg for chat description
-        if (currencySplit[c].value) {
+        if (currencySplit[c]) {
           //console.log("Loot Sheet | New currency for " + c, currencySplit[c]);
-          msg.push(` ${currencySplit[c].value} ${c} coins`)
+          msg.push(game.i18n.format("ls.splitcoins", {quantity: currencySplit[c], currency: currencyLabels[c].toLowerCase()}));
         }
 
         // Add currency to permitted actor
-        newCurrency[c] = currency[c] + currencySplit[c].value;
+        newCurrency[c] = currency[c] + currencySplit[c];
 
         //console.log("Loot Sheet | New Currency", newCurrency);
         u.update({
@@ -527,23 +527,11 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
       }
 
       // Remove currency from loot actor.
-      let lootCurrency = this.actor.data.data.currency,
-        zeroCurrency = {};
-
-      for (let c in lootCurrency) {
-        zeroCurrency[c] = {
-          'type': currencySplit[c].type,
-          'label': currencySplit[c].type,
-          'value': currencyRemains[c].value
-        }
-        this.actor.update({
-          "data.currency": zeroCurrency
-        });
-      }
-
+      this.actor.update({ "data.currency": currencyRemains });
+      
       // Create chat message for coins received
       if (msg.length != 0) {
-        let message = `${u.data.name} receives: `;
+        let message = game.i18n.format("ls.receives", {actor: u.data.name});
         message += msg.join(",");
         ChatMessage.create({
           user: game.user._id,
@@ -768,7 +756,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     let currencySplit = duplicate(actorData.data.currency);
     for (let c in currencySplit) {
       if (owners.length)
-        currencySplit[c].value = Math.floor(currencySplit[c].value / owners.length);
+        currencySplit[c] = Math.floor(currencySplit[c] / owners.length);
       else
         currencySplit[c] = 0
     }
