@@ -43,6 +43,7 @@
 
           <!-- FEATURES -->
           <div class="features" data-group="primary" data-tab="features">
+            {{#ifeq lootsheettype "Loot"}}
             <div class="inventory-filters">
               <ol class="currency flexrow">
                 <h3>
@@ -51,9 +52,13 @@
                 {{#each data.currency as |v k|}}
                   <label class="denomination {{k}}">{{ lookup ../config.currencies k }}</label>
                   <input type="text" name="data.currency.{{k}}" value="{{v}}" data-dtype="Number"/>
+                  <label class="item currency-controls" data-item-id="{{k}}">
+                    <a class="currency-controls item-control item-loot" title="{{localize "ls.lootCoins"}}"><i class="fas fa-gem"></i></a>
+                  </label>
                 {{/each}}
               </ol>
             </div>
+            {{/ifeq}}
             <div class="header-details flexrow">
               <ul class="inventory-list">
                 {{#each actor.features as |section sid|}}

@@ -73,6 +73,10 @@
   "ls.updateShopInventory": "Mettre à jour l'inventaire",
   
   "ls.splitcoins": " {quantity} {currency}",
-  "ls.receives": "{actor} reçoit:" 
+  "ls.receives": "{actor} reçoit:",
   
+  "ls.pp": "pp",
+  "ls.gp": "po",
+  "ls.sp": "pa",
+  "ls.cp": "pc"
 }

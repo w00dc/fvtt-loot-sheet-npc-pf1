@@ -32,6 +32,7 @@
   "ls.scrollof": "Scroll of {name}",
   
   "ls.chatLoot": "{buyer} looted {quantity} x {name}.",
+  "ls.chatLootCoins": "{buyer} looted {quantity} {currency}.",
   "ls.chatPurchase": "{buyer} purchased {quantity} x {name} for {cost}gp.",
   
   "ls.permissionNoaccess": "None (cannot access sheet)",
@@ -50,6 +51,7 @@
   "ls.add": "Add",
   "ls.createItem": "Create Item",
   "ls.lootItem": "Loot Item",
+  "ls.lootCoins": "Loot Coins",
   "ls.buyItem": "Buy Item",
   "ls.editItem": "Edit Item",
   "ls.deleteItem": "Delete Item",
@@ -73,7 +75,10 @@
   "ls.updateShopInventory": "Update Shop Inventory",
   
   "ls.splitcoins": " {quantity} {currency}",
-  "ls.receives": "{actor} receives:" 
+  "ls.receives": "{actor} receives:",
   
-  
+  "ls.pp": "pp",
+  "ls.gp": "gp",
+  "ls.sp": "sp",
+  "ls.cp": "cp"
 }

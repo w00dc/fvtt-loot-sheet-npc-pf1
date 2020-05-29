@@ -496,10 +496,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
         
       currencyRemains[c] -= currencySplit[c] * owners.length
     }
-    
-    // add currency to actors existing coins
-    const currencyLabels = (await this.getData()).config.currencies
-      
+          
     let msg = [];
     for (let u of owners) {
       //console.log("Loot Sheet | u of owners", u);
@@ -514,7 +511,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
         // add msg for chat description
         if (currencySplit[c]) {
           //console.log("Loot Sheet | New currency for " + c, currencySplit[c]);
-          msg.push(game.i18n.format("ls.splitcoins", {quantity: currencySplit[c], currency: currencyLabels[c].toLowerCase()}));
+          msg.push(game.i18n.format("ls.splitcoins", {quantity: currencySplit[c], currency: game.i18n.localize("ls." + c)}));
         }
 
         // Add currency to permitted actor
@@ -861,18 +858,17 @@ Hooks.once("init", () => {
 
   function chatMessage(speaker, owner, message, item) {
     if (game.settings.get("lootsheetnpcpf1", "buyChat")) {
-      message = `
-            <div class="pf1 chat-card item-card" data-actor-id="${owner._id}" data-item-id="${item._id}">
-                <header class="card-header flexrow">
-                    <img src="${item.img}" title="${item.name}" width="36" height="36">
-                    <h3 class="item-name">${item.name}</h3>
-                </header>
-
-                <div class="card-content">
-                    <p>` + message + `</p>
-                </div>
-            </div>
-            `;
+      if (item) {
+        message = `<div class="pf1 chat-card item-card" data-actor-id="${owner._id}" data-item-id="${item._id}">
+                    <header class="card-header flexrow">
+                        <img src="${item.img}" title="${item.name}" width="36" height="36">
+                        <h3 class="item-name">${item.name}</h3>
+                    </header>
+                    <div class="card-content"><p>` + message + `</p></div></div>`;
+      } else {
+        message = `<div class="pf1 chat-card item-card" data-actor-id="${owner._id}">
+                    <div class="card-content"><p>` + message + `</p></div></div>`;
+      }
       ChatMessage.create({
         user: game.user._id,
         speaker: {
@@ -923,15 +919,52 @@ Hooks.once("init", () => {
     };
 
   }
+  
+  function moveCoins(source, destination, itemId, quantity) {
+    console.log("Loot Sheet | moveCoins")
+    
+    // Move all items if we select more than the quantity.
+    let coins = source.data.data.currency[itemId]
+    if (coins < quantity) {
+      quantity = coins;
+    }
+    
+    if (quantity == 0) return null;
 
-  function lootItem(container, looter, itemId, quantity) {
+    const srcUpdate = { data: { currency: { } } };
+    srcUpdate.data.currency[itemId] = source.data.data.currency[itemId] - quantity;
+    source.update(srcUpdate)
+    
+    const dstUpdate = { data: { currency: { } } };
+    dstUpdate.data.currency[itemId] = destination.data.data.currency[itemId] + quantity;
+    destination.update(dstUpdate)
+    
+    return {
+      quantity: quantity
+    };
+
+  }
+
+  async function lootItem(container, looter, itemId, quantity) {
     console.log("Loot Sheet | lootItem")
-    let moved = moveItem(container, looter, itemId, quantity);
+    
+    if (itemId.length == 2) {
+      let moved = moveCoins(container, looter, itemId, quantity);
 
-    chatMessage(
-      container, looter,
-      game.i18n.format("ls.chatLoot", { buyer: looter.name, quantity: moved.quantity, name: moved.item.name }),
-      moved.item);
+      if (moved) {
+        chatMessage(
+          container, looter,
+          game.i18n.format("ls.chatLootCoins", { buyer: looter.name, quantity: moved.quantity, currency: game.i18n.localize("ls." + itemId) }));
+        }
+    }
+    else {
+      let moved = moveItem(container, looter, itemId, quantity);
+
+      chatMessage(
+        container, looter,
+        game.i18n.format("ls.chatLoot", { buyer: looter.name, quantity: moved.quantity, name: moved.item.name }),
+        moved.item);
+    }
   }
 
   function transaction(seller, buyer, itemId, quantity) {

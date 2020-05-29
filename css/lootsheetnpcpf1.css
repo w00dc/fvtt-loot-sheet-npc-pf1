@@ -194,3 +194,9 @@ input#quantity:focus {
 	margin: 0px;
 }
 
+.currency-controls a {
+    flex: 0 0 16px;
+    font-size: 10px;
+    text-align: center;
+    color: #666;
+}
