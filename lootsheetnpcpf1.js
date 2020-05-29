@@ -211,6 +211,9 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     const shopQtyFormula = this.actor.getFlag(moduleNamespace, "shopQty") || "1";
     const itemQtyFormula = this.actor.getFlag(moduleNamespace, "itemQty") || "1";
 
+    console.log(game.tables);
+    console.log("'" + rolltableName + "'");
+    
     let rolltable = game.tables.getName(rolltableName);
     if (!rolltable) {
       console.log(`Loot Sheet | No Rollable Table found with name "${rolltableName}".`);
@@ -573,7 +576,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
 
     //console.log("Loot Sheet | current level " + level);
 
-    const levels = [0, 3, 2]; //const levels = [0, 2, 3];
+    const levels = [0, 2, 3]; //const levels = [0, 2, 3];
 
     let idx = levels.indexOf(level),
       newLevel = levels[(idx === levels.length - 1) ? 0 : idx + 1];
@@ -648,6 +651,8 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
       else if (i.type === "tool") features.tools.items.push(i);
       else if (["container", "backpack"].includes(i.type)) features.containers.items.push(i);
       else if (i.type === "loot") features.loot.items.push(i);
+      else if (i.type === "attack") continue;
+      else if (i.type === "buff") continue;
       else features.loot.items.push(i);
     }
 
