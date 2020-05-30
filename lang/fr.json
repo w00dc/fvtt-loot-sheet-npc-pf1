@@ -18,6 +18,7 @@
   "ERROR.lsLootAttempt": "Un joueur a tenté de s'approprier un objet dans une scène différente.",
   "ERROR.lsPurchaseAttempt": "Un joueur a tenté d'acheter un objet dans une scène différente.",
   "ERROR.lsChooseTable": "Veuillez choisir une table.",
+  "ERROR.lsCurrencyConversionFailed": "Échec de conversion de monnaie. Ça doit être un bogue!",
     
   "ls.quantity": "Quantité",
   "ls.price": "Prix (en po)",

@@ -850,8 +850,6 @@ Hooks.on('preCreateOwnedItem', (actor, item, data) => {
 
 Hooks.once("init", () => {
 
-  console.log("Loot Sheet | here")
-
   loadTemplates([
     "modules/lootsheetnpcpf1/template/npc-sheet-gmpart.html", 
     "modules/lootsheetnpcpf1/template/dialog-price-modifier.html"]);
@@ -1039,13 +1037,70 @@ Hooks.once("init", () => {
       errorMessageToActor(buyer, game.i18n.localize("ERROR.lsNotEnougFunds"));
       return;
     }
-
-    buyerFundsAsGold -= itemCost;
-
-    for (let currency in buyerFunds) {
-      buyerFunds[currency] = Math.floor(buyerFundsAsGold / conversionRate[currency]);
-      buyerFundsAsGold -= buyerFunds[currency] * conversionRate[currency];
+    const originalCost = itemCost;
+    
+    // Update buyer's gold
+    
+    // make sure that coins is a number (not a float)
+    while(!Number.isInteger(itemCost)) {
+      itemCost *= 10;
+      for (const key in conversionRate) {
+        conversionRate[key] *= 10
+      }
     }
+    
+    const DEBUG = false;
+    if (DEBUG) console.log("Conversion rates: ");
+    if (DEBUG) console.log(conversionRate);
+    
+    // remove funds from lowest currency to highest
+    let remainingFond = 0
+    for (const currency of Object.keys(conversionRate).reverse()) {
+      console.log("Rate: " + conversionRate[currency])
+      if(conversionRate[currency] < 1) {
+        const ratio = 1/conversionRate[currency]
+        const value = Math.min(itemCost, Math.floor(buyerFunds[currency] / ratio))
+        if (DEBUG) console.log("BuyerFunds " + currency + ": " + buyerFunds[currency])
+        if (DEBUG) console.log("Ratio: " + ratio)
+        if (DEBUG) console.log("Value: " + value)
+        itemCost -= value
+        buyerFunds[currency] -= value * ratio
+      } else {
+        const value = Math.min(itemCost, Math.floor(buyerFunds[currency] * conversionRate[currency]))
+        itemCost -= value
+        const lost = Math.ceil( value / conversionRate[currency] )
+        buyerFunds[currency] -= lost
+        remainingFond += lost * conversionRate[currency] - value
+        if (DEBUG) console.log("Value+: " + value)
+        if (DEBUG) console.log("Lost+: " + lost)
+        if (DEBUG) console.log("RemainingFond+: " + remainingFond)
+      }
+    }
+    
+    if(itemCost > 0) {
+      errorMessageToActor(buyer, game.i18n.localize("ERROR.lsCurrencyConversionFailed"));
+      return ui.notifications.error(game.i18n.localize("ERROR.lsCurrencyConversionFailed"));
+    }
+    
+    //console.log("RemainingFond: " + remainingFond)
+    
+    if(remainingFond > 0) {
+      for (const currency of Object.keys(conversionRate)) {
+        if (conversionRate[currency] <= remainingFond) {
+          buyerFunds[currency] += Math.floor(remainingFond / conversionRate[currency]);
+          remainingFond = remainingFond % conversionRate[currency];
+          if (DEBUG) console.log("buyerFunds " + currency + ": " + buyerFunds[currency]);
+          if (DEBUG) console.log("remainingFond: " + remainingFond);
+        }
+      }
+    }
+    
+    if(remainingFond > 0) {
+      errorMessageToActor(buyer, game.i18n.localize("ERROR.lsCurrencyConversionFailed"));
+      return ui.notifications.error(game.i18n.localize("ERROR.lsCurrencyConversionFailed"));
+    }
+    
+    if (DEBUG) console.log(buyerFunds)
 
     // Update buyer's gold from the buyer.
     buyer.update({
@@ -1055,7 +1110,7 @@ Hooks.once("init", () => {
 
     chatMessage(
       seller, buyer,
-      game.i18n.format("ls.chatPurchase", { buyer: buyer.name, quantity: quantity, name: moved.item.showName, cost: itemCost }),
+      game.i18n.format("ls.chatPurchase", { buyer: buyer.name, quantity: quantity, name: moved.item.showName, cost: originalCost }),
       moved.item);
   }
 

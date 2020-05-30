@@ -18,6 +18,7 @@
   "ERROR.lsLootAttempt": "Player attempted to loot an item on a different scene.",
   "ERROR.lsPurchaseAttempt": "Player attempted to purchase an item on a different scene.",
   "ERROR.lsChooseTable": "Please choose a table.",
+  "ERROR.lsCurrencyConversionFailed": "Currency conversion failed. That must be a bug!",
     
   "ls.quantity": "Quantity",
   "ls.price": "Price (in gp)",
