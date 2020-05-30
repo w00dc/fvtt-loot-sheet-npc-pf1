@@ -17,6 +17,7 @@
   "ERROR.lsNotEnougFunds": "Pas assez d'argent pour acheter l'objet.",
   "ERROR.lsLootAttempt": "Un joueur a tenté de collecter un objet dans une scène différente.",
   "ERROR.lsPurchaseAttempt": "Un joueur a tenté d'acheter un objet dans une scène différente.",
+  "ERROR.lsChooseTable": "Veuillez choisir une table.",
     
   "ls.quantity": "Quantité",
   "ls.price": "Prix (en po)",
@@ -68,6 +69,7 @@
   "ls.merchantSettings": "Propriétés du marchand",
   "ls.merchantInfo": "Remplacer l'inventaire par un nombre d'objets tirés au hasard dans la table aléatoire. Spécifier le nom de la table aléatoire, la formule pour déterminer le nombre d'objets différents (Formule nbr. différents) et la formule pour déterminer la quantité pour chacun (Formule quantité).",
   "ls.rollableTable": "Table aléatoire",
+  "ls.chooseTable": "-- Choisir table --",
   "ls.shopQtyFormula": "Nombre (obj)",
   "ls.itemQtyFormula": "Quantité (chq)",
   "ls.updateShopInventory": "Mettre à jour l'inventaire",

@@ -211,13 +211,14 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     const shopQtyFormula = this.actor.getFlag(moduleNamespace, "shopQty") || "1";
     const itemQtyFormula = this.actor.getFlag(moduleNamespace, "itemQty") || "1";
 
-    console.log(game.tables);
-    console.log("'" + rolltableName + "'");
+    if (!rolltableName || rolltableName.length == 0) {
+      return ui.notifications.error(game.i18n.format("ERROR.lsChooseTable"));
+    }
     
     let rolltable = game.tables.getName(rolltableName);
     if (!rolltable) {
       console.log(`Loot Sheet | No Rollable Table found with name "${rolltableName}".`);
-      return ui.notifications.error(game.i18n.format("ERROR.lsChangingSettingsFor", {name: rolltableName}));
+      return ui.notifications.error(game.i18n.format("ERROR.lsNoRollableTableFound", {name: rolltableName}));
     }
 
     let clearInventory = game.settings.get("lootsheetnpcpf1", "clearInventory");
@@ -240,8 +241,20 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
       let newItem = game.items.get(rollResult.results[0].resultId);
       //console.log(newItem);
       if (!newItem || newItem === null) {
-        console.log(`Loot Sheet | No item found "${rollResult.results[0].resultId}".`);
-        return ui.notifications.error(game.i18n.format("ERROR.lsChangingSettingsFor", {item: rollResult.results[0].resultId}));
+          
+        for (const pack of game.packs) {
+          if (pack.entity == "Item") {
+            console.log(rollResult.results[0].resultId)
+            newItem = await pack.getEntity(rollResult.results[0].resultId);
+            if (newItem) {
+              break;
+            }
+          }
+        }
+        if (!newItem || newItem === null) {
+          console.log(`Loot Sheet | No item found "${rollResult.results[0].resultId}".`);
+          return ui.notifications.error(`No item found "${rollResult.results[0].resultId}".`);
+        }
       }
 
       let itemQtyRoll = new Roll(itemQtyFormula);
@@ -591,7 +604,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
    * Organize and classify Items for Loot NPC sheets
    * @private
    */
-  _prepareItems(actorData) {
+  async _prepareItems(actorData) {
     //console.log("Loot Sheet | _prepareItems")
     // Actions
     const features = {
@@ -625,10 +638,13 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     }
 
     //console.log("Loot Sheet | Prepare Items");
+    let lootsheettype = await this.actor.getFlag("lootsheetnpcpf1", "lootsheettype");
+    
     // Iterate through items, allocating to containers
     for (let i of actorData.items) {
       i.img = i.img || DEFAULT_TOKEN;
-
+      i.showIdentifiedPrice = game.user.isGM || lootsheettype == "Merchant" || i.data.identified;
+      
       // Features
       if (i.type === "weapon") features.weapons.items.push(i);
       else if (i.type === "equipment") features.equipment.items.push(i);
@@ -643,8 +659,8 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
 
     // Assign and return
     actorData.actor.features = features;
-    //console.log(this.actor);
   }
+
 
   /* -------------------------------------------- */
 
@@ -859,15 +875,16 @@ Hooks.once("init", () => {
   function chatMessage(speaker, owner, message, item) {
     if (game.settings.get("lootsheetnpcpf1", "buyChat")) {
       if (item) {
+        const itemName = item.data.identified ? item.name : item.data.unidentified.name;
         message = `<div class="pf1 chat-card item-card" data-actor-id="${owner._id}" data-item-id="${item._id}">
                     <header class="card-header flexrow">
-                        <img src="${item.img}" title="${item.name}" width="36" height="36">
-                        <h3 class="item-name">${item.name}</h3>
+                        <img src="${item.img}" title="${itemName}" width="36" height="36">
+                        <h3 class="item-name">${itemName}</h3>
                     </header>
-                    <div class="card-content"><p>` + message + `</p></div></div>`;
+                    <div class="card-content"><p>${message}</p></div></div>`;
       } else {
         message = `<div class="pf1 chat-card item-card" data-actor-id="${owner._id}">
-                    <div class="card-content"><p>` + message + `</p></div></div>`;
+                    <div class="card-content"><p>${message}</p></div></div>`;
       }
       ChatMessage.create({
         user: game.user._id,

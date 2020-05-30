@@ -17,6 +17,7 @@
   "ERROR.lsNotEnougFunds": "Not enough funds to purchase item.",
   "ERROR.lsLootAttempt": "Player attempted to loot an item on a different scene.",
   "ERROR.lsPurchaseAttempt": "Player attempted to purchase an item on a different scene.",
+  "ERROR.lsChooseTable": "Please choose a table.",
     
   "ls.quantity": "Quantity",
   "ls.price": "Price (in gp)",
@@ -70,6 +71,7 @@
   "ls.merchantSettings": "Merchant Settings",
   "ls.merchantInfo": "Replace this merchant's inventory with a random number of items from a Rollable Table. Specify the Rollable Table's name, along with how a formula for how many different items to add (Shop Qty Formula), and a formula for determining how many of each item to add (Item Qty Formula).",
   "ls.rollableTable": "Rollable Table",
+  "ls.chooseTable": "-- Choose table --",
   "ls.shopQtyFormula": "Shop Qty Formula",
   "ls.itemQtyFormula": "Item Qty Formula",
   "ls.updateShopInventory": "Update Shop Inventory",

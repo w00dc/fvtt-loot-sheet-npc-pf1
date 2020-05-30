@@ -83,10 +83,10 @@
                           <i class="fas fa-box" title="{{localize "ls.quantity"}}"></i> {{item.data.quantity}}
                         </div>
                         <div class="item-price">
-                          {{#if item.identified}}
+                          {{#if item.showIdentifiedPrice}}
                             <i class="fas fa-coins" title="{{localize "ls.price"}}"></i> {{ lootsheetprice item.data.price ../../priceModifier }}
                           {{/if}}
-                          {{#unless item.identified}}
+                          {{#unless item.showIdentifiedPrice}}
                             <i class="fas fa-coins" title="{{localize "ls.price"}}"></i> {{ lootsheetprice item.data.unidentified.price ../../priceModifier }}
                           {{/unless}}
                         </div>
