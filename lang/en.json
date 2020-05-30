@@ -34,7 +34,7 @@
   
   "ls.chatLoot": "{buyer} looted {quantity} x {name}.",
   "ls.chatLootCoins": "{buyer} looted {quantity} {currency}.",
-  "ls.chatPurchase": "{buyer} purchased {quantity} x {name} for {cost}gp.",
+  "ls.chatPurchase": "{buyer} purchased {quantity} x {name} for {cost} gp.",
   
   "ls.permissionNoaccess": "None (cannot access sheet)",
   "ls.permissionObserver": "Observer (access to sheet but can only purchase items if merchant sheet type)",

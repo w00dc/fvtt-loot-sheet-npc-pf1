@@ -33,7 +33,7 @@
   "ls.scrollof": "Parchemin de {name}",
   
   "ls.chatLoot": "{buyer} a collecté {quantity} x {name}.",
-  "ls.chatPurchase": "{buyer} a acheté {quantity} x {name} pour {cost}po.",
+  "ls.chatPurchase": "{buyer} a acheté {quantity} x {name} pour {cost} po.",
   
   "ls.permissionNoaccess": "Aucun (ne peut accéder au butin)",
   "ls.permissionObserver": "Observateur (peut accéder à la feuille mais ne peut qu'acheter des objets si c'est un marchand)",

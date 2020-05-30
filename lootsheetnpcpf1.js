@@ -85,6 +85,26 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     });
     return options;
   }
+  
+  /**
+   * Returns the loot price that the player is aware of
+   */
+  getLootPrice(item) {
+    if(game.user.isGM || item.data.identified) {
+      return item.data.price;
+    }
+    return item.data.unidentified.price && item.data.unidentified.price > 0 ? item.data.unidentified.price : item.data.price;
+  }
+  
+  /**
+   * Returns the loot name that the player knows
+   */
+  getLootName(item) {
+    if(game.user.isGM || item.data.identified) {
+      return item.name;
+    }
+    return item.data.unidentified.name && item.data.unidentified.name.length > 0 ? item.data.unidentified.name : item.name;
+  }
 
   async getData() {
     const sheetData = super.getData();
@@ -604,7 +624,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
    * Organize and classify Items for Loot NPC sheets
    * @private
    */
-  async _prepareItems(actorData) {
+  _prepareItems(actorData) {
     //console.log("Loot Sheet | _prepareItems")
     // Actions
     const features = {
@@ -638,12 +658,12 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     }
 
     //console.log("Loot Sheet | Prepare Items");
-    let lootsheettype = await this.actor.getFlag("lootsheetnpcpf1", "lootsheettype");
     
     // Iterate through items, allocating to containers
     for (let i of actorData.items) {
       i.img = i.img || DEFAULT_TOKEN;
-      i.showIdentifiedPrice = game.user.isGM || lootsheettype == "Merchant" || i.data.identified;
+      i.showPrice = this.getLootPrice(i)
+      i.showName = this.getLootName(i)
       
       // Features
       if (i.type === "weapon") features.weapons.items.push(i);
@@ -693,7 +713,6 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     };
     return description[level];
   }
-
 
   /* -------------------------------------------- */
 
@@ -875,11 +894,10 @@ Hooks.once("init", () => {
   function chatMessage(speaker, owner, message, item) {
     if (game.settings.get("lootsheetnpcpf1", "buyChat")) {
       if (item) {
-        const itemName = item.data.identified ? item.name : item.data.unidentified.name;
         message = `<div class="pf1 chat-card item-card" data-actor-id="${owner._id}" data-item-id="${item._id}">
                     <header class="card-header flexrow">
-                        <img src="${item.img}" title="${itemName}" width="36" height="36">
-                        <h3 class="item-name">${itemName}</h3>
+                        <img src="${item.img}" title="${item.showName}" width="36" height="36">
+                        <h3 class="item-name">${item.showName}</h3>
                     </header>
                     <div class="card-content"><p>${message}</p></div></div>`;
       } else {
@@ -930,6 +948,9 @@ Hooks.once("init", () => {
     newItem.data.quantity = quantity;
     destination.createEmbeddedEntity("OwnedItem", newItem);
 
+    const itemName = newItem.data.identified || !newItem.data.unidentified.name || newItem.data.unidentified.name.length == 0 ? newItem.name : newItem.data.unidentified.name
+    newItem.showName = itemName
+    
     return {
       item: newItem,
       quantity: quantity
@@ -979,7 +1000,7 @@ Hooks.once("init", () => {
 
       chatMessage(
         container, looter,
-        game.i18n.format("ls.chatLoot", { buyer: looter.name, quantity: moved.quantity, name: moved.item.name }),
+        game.i18n.format("ls.chatLoot", { buyer: looter.name, quantity: moved.quantity, name: moved.item.showName }),
         moved.item);
     }
   }
@@ -998,7 +1019,8 @@ Hooks.once("init", () => {
     let sellerModifier = seller.getFlag("lootsheetnpcpf1", "priceModifier");
     if (!sellerModifier) sellerModifier = 1.0;
 
-    let itemCost = Math.round(sellItem.data.price * sellerModifier * 100) / 100;
+    let itemCost = sellItem.data.identified || !sellItem.data.unidentified.price || sellItem.data.unidentified.price == 0 ? sellItem.data.price : sellItem.data.unidentified.price
+    itemCost = Math.round(itemCost * sellerModifier * 100) / 100;
     itemCost *= quantity;
     let buyerFunds = duplicate(buyer.data.data.currency);
     const conversionRate = {
@@ -1033,7 +1055,7 @@ Hooks.once("init", () => {
 
     chatMessage(
       seller, buyer,
-      game.i18n.format("ls.chatPurchase", { buyer: buyer.name, quantity: quantity, name: moved.item.name, cost: itemCost }),
+      game.i18n.format("ls.chatPurchase", { buyer: buyer.name, quantity: quantity, name: moved.item.showName, cost: itemCost }),
       moved.item);
   }
 
