@@ -13,9 +13,9 @@
   "ERROR.lsNoActiveGM": "Aucun MJ sur la scène. Celui-ci doit être en ligne et se trouver sur la même scène.",
   "ERROR.lsPurchaseFromToken": "Les achats doivent se faire à partir du token sur la carte.",
   "ERROR.lsNoActiveCharacter": "Aucun personnage actif pour l'utilisateur.",
-  "ERROR.lsLootFromToken": "La collecte doit se faire à partir du token sur la carte.",
+  "ERROR.lsLootFromToken": "L'action doit se faire à partir du token sur la carte.",
   "ERROR.lsNotEnougFunds": "Pas assez d'argent pour acheter l'objet.",
-  "ERROR.lsLootAttempt": "Un joueur a tenté de collecter un objet dans une scène différente.",
+  "ERROR.lsLootAttempt": "Un joueur a tenté de s'approprier un objet dans une scène différente.",
   "ERROR.lsPurchaseAttempt": "Un joueur a tenté d'acheter un objet dans une scène différente.",
   "ERROR.lsChooseTable": "Veuillez choisir une table.",
     
@@ -32,7 +32,7 @@
   "ls.percentage": "Pourcentage",
   "ls.scrollof": "Parchemin de {name}",
   
-  "ls.chatLoot": "{buyer} a collecté {quantity} x {name}.",
+  "ls.chatLoot": "{buyer} s'est approprié(e) {quantity} x {name}.",
   "ls.chatPurchase": "{buyer} a acheté {quantity} x {name} pour {cost} po.",
   
   "ls.permissionNoaccess": "Aucun (ne peut accéder au butin)",
@@ -49,11 +49,11 @@
   "ls.biography": "Biographie",
   "ls.currency": "Richesses",
   "ls.add": "Ajouter",
-  "ls.createItem": "Créer objet",
-  "ls.lootItem": "Collecter objet",
-  "ls.buyItem": "Acheter objet",
-  "ls.editItem": "Modifier objet",
-  "ls.deleteItem": "Supprimer objet",
+  "ls.createItem": "Créer un objet",
+  "ls.lootItem": "S'approprier l'objet",
+  "ls.buyItem": "Acheter l'objet",
+  "ls.editItem": "Modifier l'objet",
+  "ls.deleteItem": "Supprimer l'objet",
   
   "ls.gmSettings": "Propriétés du MJ",
   "ls.type": "Type",
