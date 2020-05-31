@@ -19,6 +19,8 @@
   "ERROR.lsPurchaseAttempt": "Player attempted to purchase an item on a different scene.",
   "ERROR.lsChooseTable": "Please choose a table.",
   "ERROR.lsCurrencyConversionFailed": "Currency conversion failed. That must be a bug!",
+  "ERROR.lsNotAutorizedToAdd": "You're not autorized to add items that you don't own!",
+  "ERROR.lsInvalidType": "You cannot add this type of element to the loot sheet!",
     
   "ls.quantity": "Quantity",
   "ls.price": "Price (in gp)",
@@ -36,6 +38,7 @@
   "ls.chatLoot": "{buyer} looted {quantity} x {name}.",
   "ls.chatLootCoins": "{buyer} looted {quantity} {currency}.",
   "ls.chatPurchase": "{buyer} purchased {quantity} x {name} for {cost} gp.",
+  "ls.chatSell": "{seller} sold {quantity} x {item} for {price} gp.",
   
   "ls.permissionNoaccess": "None (cannot access sheet)",
   "ls.permissionObserver": "Observer (access to sheet but can only purchase items if merchant sheet type)",

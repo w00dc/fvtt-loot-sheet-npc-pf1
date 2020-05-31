@@ -809,9 +809,9 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
  */
 Hooks.on('preCreateOwnedItem', (actor, item, data) => {
 
-  //console.log("Loot Sheet | actor", actor);
-  //console.log("Loot Sheet | item", item);
-  //console.log("Loot Sheet | data", data);
+  console.log("Loot Sheet | actor", actor);
+  console.log("Loot Sheet | item", item);
+  console.log("Loot Sheet | data", data);
 
   if (!actor) throw new Error(`Parent Actor ${actor._id} not found`);
 
@@ -820,7 +820,25 @@ Hooks.on('preCreateOwnedItem', (actor, item, data) => {
 
   // If the actor is using the LootSheetPf1NPC then check in the item is a spell and if so update the name.
   if ((actor.data.flags.core || {}).sheetClass === "PF1.LootSheetPf1NPC") {
-    if (item.type === "spell") {
+
+    // retrieve source
+    let source = null;
+    game.actors.forEach( function(a) {
+      const entity = a.getEmbeddedEntity("OwnedItem", item._id);
+      if (entity) {
+        //console.log(`Entity ${item._id} found in actor ${a.name}`)
+        source = a
+      }
+    });
+    
+    // user may not fill loot with items that are not attached to his actor
+    if(!game.user.isGM && (!source || source._id != game.user.actorId) ) {
+      ui.notifications.error(game.i18n.localize("ERROR.lsNotAutorizedToAdd"));
+      return false;
+    }
+    
+    // spell => convert to scroll (only if GM)
+    if (game.user.isGM && item.type === "spell") {
       console.log("Loot Sheet | dragged spell item", item);
 
       item.name = game.i18n.format("ls.scrollof", {name: item.name})
@@ -842,8 +860,45 @@ Hooks.on('preCreateOwnedItem', (actor, item, data) => {
         // TODO: improve to have pricing per class
         const pricePerLevel = [ 13, 25, 150, 375, 700, 1125, 1650, 2275, 3000, 3825 ]
         item.data.price = pricePerLevel[item.data.level];
-      }      
+      }
+      return;
     }
+    
+    // validate the type of item to be "moved" or "added"
+    if(!["weapon","equipment","consumable","loot"].includes(item.type)) {
+      ui.notifications.error(game.i18n.localize("ERROR.lsInvalidType"));
+      return false;
+    }
+    
+    if(source) {
+      // remove item from the player
+      source.deleteEmbeddedEntity("OwnedItem", item._id)
+      
+      // if merchant => sell item for half the price
+      let lootsheettype = actor.getFlag("lootsheetnpcpf1", "lootsheettype");
+      if (lootsheettype === "Merchant") {
+        let itemPrice = item.data.identified || !item.data.unidentified.price || item.data.unidentified.price == 0 ? item.data.price : item.data.unidentified.price
+        const itemName = item.data.identified || !item.data.unidentified.name || item.data.unidentified.name.length == 0 ? item.name : item.data.unidentified.name        
+
+        itemPrice = Math.round(itemPrice / 2) * item.data.quantity
+        const newAmount = source.data.data.currency.gp + itemPrice
+        source.update({ data: { currency: { gp: newAmount } } })
+        
+        let message = game.i18n.format("ls.chatSell", {seller: source.name, quantity: item.data.quantity, item: itemName, price: itemPrice});
+        ChatMessage.create({
+          user: game.user._id,
+          speaker: {
+            actor: source,
+            alias: source.name
+          },
+          content: message
+        });
+        
+        console.log(`Item was sold for ${itemPrice}`)
+      }
+    }
+    
+    
   } else return;
 
 });
@@ -991,7 +1046,7 @@ Hooks.once("init", () => {
         chatMessage(
           container, looter,
           game.i18n.format("ls.chatLootCoins", { buyer: looter.name, quantity: moved.quantity, currency: game.i18n.localize("ls." + itemId) }));
-        }
+      }
     }
     else {
       let moved = moveItem(container, looter, itemId, quantity);
