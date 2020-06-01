@@ -21,6 +21,9 @@
   "ERROR.lsCurrencyConversionFailed": "Currency conversion failed. That must be a bug!",
   "ERROR.lsNotAutorizedToAdd": "You're not autorized to add items that you don't own!",
   "ERROR.lsInvalidType": "You cannot add this type of element to the loot sheet!",
+  "ERROR.lsNotAutorizedToGive": "You're not autorized to give items that you don't own!",
+  "ERROR.lsWhyGivingToYourself": "Why would you give that item to yourself??",
+  "ERROR.lsGiveInvalidType": "You cannot give this type of element!",
     
   "ls.quantity": "Quantity",
   "ls.price": "Price (in gp)",
@@ -39,6 +42,7 @@
   "ls.chatLootCoins": "{buyer} looted {quantity} {currency}.",
   "ls.chatPurchase": "{buyer} purchased {quantity} x {name} for {cost} gp.",
   "ls.chatSell": "{seller} sold {quantity} x {item} for {price} gp.",
+  "ls.chatGive": "{giver} gave {quantity} x {item} to {receiver}.",
   
   "ls.permissionNoaccess": "None (cannot access sheet)",
   "ls.permissionObserver": "Observer (access to sheet but can only purchase items if merchant sheet type)",
@@ -86,5 +90,8 @@
   "ls.pp": "pp",
   "ls.gp": "gp",
   "ls.sp": "sp",
-  "ls.cp": "cp"
+  "ls.cp": "cp",
+  
+  "ls.giveConfirmTitle": "Give item",
+  "ls.giveConfirmContent": "Are you sure you want to give <em>{item}</em> to <b>{actor}</b>?"
 }

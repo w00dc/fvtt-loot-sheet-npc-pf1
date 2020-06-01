@@ -331,7 +331,6 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
       });
     }));
 
-    console.log(output);
     return;
   }
 
@@ -672,9 +671,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
       else if (i.type === "tool") features.tools.items.push(i);
       else if (["container", "backpack"].includes(i.type)) features.containers.items.push(i);
       else if (i.type === "loot") features.loot.items.push(i);
-      else if (i.type === "attack") continue;
-      else if (i.type === "buff") continue;
-      else features.loot.items.push(i);
+      else { continue }
     }
 
     // Assign and return
@@ -809,9 +806,9 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
  */
 Hooks.on('preCreateOwnedItem', (actor, item, data) => {
 
-  console.log("Loot Sheet | actor", actor);
-  console.log("Loot Sheet | item", item);
-  console.log("Loot Sheet | data", data);
+  //console.log("Loot Sheet | actor", actor);
+  //console.log("Loot Sheet | item", item);
+  //console.log("Loot Sheet | data", data);
 
   if (!actor) throw new Error(`Parent Actor ${actor._id} not found`);
 
@@ -894,7 +891,7 @@ Hooks.on('preCreateOwnedItem', (actor, item, data) => {
           content: message
         });
         
-        console.log(`Item was sold for ${itemPrice}`)
+        console.log(`Loot Sheet | Item was sold for ${itemPrice}`)
       }
     }
     
@@ -902,6 +899,80 @@ Hooks.on('preCreateOwnedItem', (actor, item, data) => {
   } else return;
 
 });
+
+Hooks.on('renderActorDirectory', (app, html, data) => {
+  
+  
+  function giveItemTo(actorDestId, event) {
+    event.preventDefault();
+    
+    // try to extract the data
+    let data;
+    let extraData = {};
+    try {
+      data = JSON.parse(event.dataTransfer.getData('text/plain'));
+      if (data.type !== "Item") return;
+    } catch (err) {
+      return false;
+    }
+    
+    const giver = game.actors.get(data.actorId)
+    const receiver = game.actors.get(actorDestId)
+    const item = giver.getEmbeddedEntity("OwnedItem", data.data._id);
+    
+    // validate the type of item to be "moved" or "added"
+    if(!["weapon","equipment","consumable","loot"].includes(item.type)) {
+      ui.notifications.error(game.i18n.localize("ERROR.lsGiveInvalidType"));
+      return false;
+    }
+    
+    // items must be owned
+    if(!game.user.isGM && (data.actorId != game.user.data.character) ) {
+      ui.notifications.error(game.i18n.localize("ERROR.lsNotAutorizedToGive"));
+      return false;
+    }
+        
+    let targetGm = null;
+    game.users.forEach((u) => {
+      if (u.isGM && u.active && u.viewedScene === game.user.viewedScene) {
+        targetGm = u;
+      }
+    });
+    
+    if (data.actorId === actorDestId) {
+      ui.notifications.error(game.i18n.localize("ERROR.lsWhyGivingToYourself"));
+      console.log("Loot Sheet | Ignoring giving something to same person")
+      return false;
+    }
+    
+    Dialog.confirm({
+      title: game.i18n.localize("ls.giveConfirmTitle"),
+      content: game.i18n.format("ls.giveConfirmContent", { actor: receiver.data.name, item: data.data.name }),
+      yes: () => {
+        if( game.user.isGM ) {
+          lsGiveItem(data.actorId, actorDestId, data.data._id)
+        } else {
+          // confirmation message
+          const packet = {
+            type: "give",
+            giverId: data.actorId,
+            giverItemId: data.data._id,
+            receiverId: actorDestId,
+            processorId: targetGm.id
+          };
+          console.log(`Loot Sheet | Sending packet to ${targetGm.id}`)
+          game.socket.emit(LootSheetPf1NPC.SOCKET, packet);
+        }
+      },
+      no: () => console.log("Loot Sheet | Give item cancelled")
+    });
+  }
+  
+  html.find('li.actor').each((i, li) => {
+    li.addEventListener("drop", giveItemTo.bind(this, li.getAttribute("data-entity-id")));
+  });
+});
+
 
 Hooks.once("init", () => {
 
@@ -1057,7 +1128,7 @@ Hooks.once("init", () => {
         moved.item);
     }
   }
-
+  
   function transaction(seller, buyer, itemId, quantity) {
     console.log("Loot Sheet | Transaction")
 
@@ -1105,7 +1176,7 @@ Hooks.once("init", () => {
     }
     
     const DEBUG = false;
-    if (DEBUG) console.log("Conversion rates: ");
+    if (DEBUG) console.log("Loot Sheet | Conversion rates: ");
     if (DEBUG) console.log(conversionRate);
     
     // remove funds from lowest currency to highest
@@ -1115,9 +1186,9 @@ Hooks.once("init", () => {
       if(conversionRate[currency] < 1) {
         const ratio = 1/conversionRate[currency]
         const value = Math.min(itemCost, Math.floor(buyerFunds[currency] / ratio))
-        if (DEBUG) console.log("BuyerFunds " + currency + ": " + buyerFunds[currency])
-        if (DEBUG) console.log("Ratio: " + ratio)
-        if (DEBUG) console.log("Value: " + value)
+        if (DEBUG) console.log("Loot Sheet | BuyerFunds " + currency + ": " + buyerFunds[currency])
+        if (DEBUG) console.log("Loot Sheet | Ratio: " + ratio)
+        if (DEBUG) console.log("Loot Sheet | Value: " + value)
         itemCost -= value
         buyerFunds[currency] -= value * ratio
       } else {
@@ -1126,9 +1197,9 @@ Hooks.once("init", () => {
         const lost = Math.ceil( value / conversionRate[currency] )
         buyerFunds[currency] -= lost
         remainingFond += lost * conversionRate[currency] - value
-        if (DEBUG) console.log("Value+: " + value)
-        if (DEBUG) console.log("Lost+: " + lost)
-        if (DEBUG) console.log("RemainingFond+: " + remainingFond)
+        if (DEBUG) console.log("Loot Sheet | Value+: " + value)
+        if (DEBUG) console.log("Loot Sheet | Lost+: " + lost)
+        if (DEBUG) console.log("Loot Sheet | RemainingFond+: " + remainingFond)
       }
     }
     
@@ -1144,8 +1215,8 @@ Hooks.once("init", () => {
         if (conversionRate[currency] <= remainingFond) {
           buyerFunds[currency] += Math.floor(remainingFond / conversionRate[currency]);
           remainingFond = remainingFond % conversionRate[currency];
-          if (DEBUG) console.log("buyerFunds " + currency + ": " + buyerFunds[currency]);
-          if (DEBUG) console.log("remainingFond: " + remainingFond);
+          if (DEBUG) console.log("Loot Sheet | buyerFunds " + currency + ": " + buyerFunds[currency]);
+          if (DEBUG) console.log("Loot Sheet | remainingFond: " + remainingFond);
         }
       }
     }
@@ -1195,6 +1266,10 @@ Hooks.once("init", () => {
           ui.notifications.error(game.i18n.localize("ERROR.lsLootAttempt"));
         }
       }
+      
+      if (data.type === "give") {
+        lsGiveItem(data.giverId, data.receiverId, data.giverItemId);
+      }
     }
     if (data.type === "error" && data.targetId === game.user.actorId) {
       console.log("Loot Sheet | Transaction Error: ", data.message);
@@ -1209,3 +1284,38 @@ Hooks.once("init", () => {
   });
 
 });
+
+
+/**
+ * Global function to give something to somebody else
+ */
+function lsGiveItem(giverId, receiverId, itemId) {
+  let giver = game.actors.get(giverId);
+  let receiver = game.actors.get(receiverId);
+ 
+  let giverUser = null;
+    game.users.forEach((u) => {
+    if (u.character && u.character._id === giverId) {
+      giverUser = u;
+    }
+  });
+  
+  if (giver && receiver) {
+    const item = giver.getEmbeddedEntity("OwnedItem", itemId);
+    if (item) {
+      giver.deleteEmbeddedEntity("OwnedItem", item._id);
+      receiver.createEmbeddedEntity("OwnedItem", item);
+      console.log(`Loot Sheet | ${giver.name} gave ${item.name} to ${receiver.name}`)
+      
+      let message = game.i18n.format("ls.chatGive", {giver: giver.data.name, receiver: receiver.data.name, quantity: item.data.quantity, item: item.name});
+      ChatMessage.create({
+        user: giverUser ? giverUser._id : game.user._id,
+        content: message
+      });
+    } else {
+      console.log("Loot Sheet | Give operation failed because item (giver) couldn't be found!");
+    }
+  } else {
+    console.log("Loot Sheet | Give operation failed because actors (giver or receiver) couldn't be found!");
+  }
+}

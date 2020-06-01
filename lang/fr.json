@@ -21,6 +21,9 @@
   "ERROR.lsCurrencyConversionFailed": "Échec de conversion de monnaie. Ça doit être un bogue!",
   "ERROR.lsNotAutorizedToAdd": "Vous n'êtes pas autorisé à ajouter des objets dont vous n'êtes pas le propriétaire!",
   "ERROR.lsInvalidType": "La feuille de butin n'accepte pas ce type d'élément!",
+  "ERROR.lsNotAutorizedToGive": "Vous n'êtes pas autorisé à donner des objets dont vous n'êtes pas le propriétaire!",
+  "ERROR.lsWhyGivingToYourself": "Pourquoi voudriez-vous donner cet objet à vous-même??",
+  "ERROR.lsGiveInvalidType": "Vous ne pouvez pas donner ce type d'élément!",
     
   "ls.quantity": "Quantité",
   "ls.price": "Prix (en po)",
@@ -39,6 +42,7 @@
   "ls.chatLootCoins": "{buyer} s'est approprié(e) {quantity} {currency}.",
   "ls.chatPurchase": "{buyer} a acheté {quantity} x {name} pour {cost} po.",
   "ls.chatSell": "{seller} a vendu {quantity} x {item} pour {price} po.",
+  "ls.chatGive": "{giver} a donné {quantity} x {item} à {receiver}.",
   
   "ls.permissionNoaccess": "Aucun (ne peut accéder au butin)",
   "ls.permissionObserver": "Observateur (peut accéder à la feuille mais ne peut qu'acheter des objets si c'est un marchand)",
@@ -85,5 +89,8 @@
   "ls.pp": "pp",
   "ls.gp": "po",
   "ls.sp": "pa",
-  "ls.cp": "pc"
+  "ls.cp": "pc",
+  
+  "ls.giveConfirmTitle": "Donner objet",
+  "ls.giveConfirmContent": "Êtes-vous sûr de vouloir donner <em>{item}</em> à <b>{actor}</b>?"
 }
