@@ -13,40 +13,63 @@ Allows for easy assembly of items and coins to be distributed to players.
 
 More features detailed below.
 
-##### Permissions
-Permissions can be set in the sheet for each player and range from no access (cannot open sheet) to observer (view sheet and contents) to owner (view sheet and add/remove items).
+#### Features for GM
 
-![demo_permissions](https://thumbs.gfycat.com/CaringWildKoi-size_restricted.gif)
+##### Loot Sheet
 
-##### Shopkeeper Sheet
-Can be used to create an inventory of a shopkeeper to allow players to peruse their inventory. Prices are listed next to each item.
+* Prepare a loot by dragging items from compendiums
+* Alternatively, you can convert a dead PNJ into a loot by changing the sheet to `PF1.LootSheetPF1NPC`
 
-![demo_inventory](https://raw.githubusercontent.com/jopeek/fvtt-loot-sheet-npc-5e/master/images/demo_inventory.jpg)
-
-##### Price Modifier
-Prices can be adjusted by percentage for all owned items.
-
-![price_modifier](https://thumbs.gfycat.com/WelloffFortunateInganue-size_restricted.gif)
-
-A Biography tab is also available.
-
-![demo_biography](https://raw.githubusercontent.com/jopeek/fvtt-loot-sheet-npc-5e/master/images/demo_biography.jpg)
-
-##### Coin Distribution
-Any coins in the sheet can easily be split evenly across all players with owner access. The math and distribution is done for you via a single click if you're the GM.
-
-![demo_splitcoins](https://thumbs.gfycat.com/ElementaryDependentGalapagosdove-size_restricted.gif)
+![Demo Loot Sheet](doc/img/add-items-loot.gif)
 
 ##### Create Spell Scrolls
-Dragging of spells into the sheet will automatically turn them into scrolls.
 
-![demo_scrolls](https://thumbs.gfycat.com/LividAccurateFluke-size_restricted.gif)
+* Dragging of spells into the sheet will automatically turn them into scrolls.
+
+![Demo crate scrolls](doc/img/scroll.gif)
+
+##### Permissions & split money
+
+* Permissions can be set in the sheet for each player and range from no access (cannot open sheet) to observer (view sheet and contents) to owner (view sheet and add/remove items).
+* Any coins in the sheet can easily be split evenly across all players with owner access. The math and distribution is done for you via a single click if you're the GM. 
+
+![Demo Permissions & Split](doc/img/split.gif)
+
+#### Shopkeeper Sheet
+
+* Can be used to create an inventory of a shopkeeper to allow players to peruse their inventory. Prices are listed next to each item.
+* Use rolltables to automatically fill shopkeeper inventory
+
+![Demo merchant](doc/img/merchant.gif)
+
+
+
+#### Feature for PC
+
+##### Loot items and money
+
+* A PC with owner permissions can loot money and items from the sheet
+
+![Demo Loot items and money](doc/img/loot.gif)
+
+##### Buy/sell items at shopkeeper
+
+* A PC can buy items from a shopkeeper
+* A PC can sell items (half-price) to a shopkeeper
+
+![Demo Buy and Sell items](doc/img/give.gif)
+
+##### Give items to another PC
+
+* A PC can give an item to another PC by dragging it on the actor
+
+![Demo Give items](doc/img/give.gif)
+
 
 ### Compatibility:
 - Tested with FVTT v0.6.0.
 
 ### Known Issues:
-- Dragging an item out of the sheet does not actually remove it from the sheet's inventory.
 - Currently can't get back to original prices, especially if percentage is set to 0.
 
 ### Installation Instructions
