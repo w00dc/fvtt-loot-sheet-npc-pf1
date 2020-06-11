@@ -33,10 +33,11 @@
   "ls.purchase": "Purchase",
   "ls.give": "Give",
   "ls.split": "Split",
+  "ls.loot": "Loot",
   "ls.weapons": "Weapons",
   "ls.equipment": "Equipment",
   "ls.consumables": "Consumables",
-  "ls.loot": "Loot",
+  "ls.lootType": "Loot",
   "ls.percentage": "Percentage",
   "ls.scrollof": "Scroll of {name}",
   

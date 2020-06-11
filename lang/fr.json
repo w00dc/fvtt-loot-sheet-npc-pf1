@@ -33,10 +33,11 @@
   "ls.purchase": "Acheter",
   "ls.give": "Donner",
   "ls.split": "Diviser",
+  "ls.loot": "S'approprier",
   "ls.weapons": "Armes",
   "ls.equipment": "Armures/bouclier",
   "ls.consumables": "Consommables",
-  "ls.loot": "Autres butins",
+  "ls.lootType": "Autres butins",
   "ls.percentage": "Pourcentage",
   "ls.scrollof": "Parchemin de {name}",
   

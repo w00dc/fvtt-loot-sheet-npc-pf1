@@ -644,7 +644,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
         type: "consumable"
       },
       loot: {
-        label: game.i18n.localize("ls.loot"),
+        label: game.i18n.localize("ls.lootType"),
         items: [],
         type: "loot"
       },
