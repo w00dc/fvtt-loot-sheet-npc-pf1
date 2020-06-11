@@ -14,13 +14,14 @@ class QuantityDialog extends Dialog {
     }
 
     let applyChanges = false;
+    const chooseQuantity = 'quantity' in options ? "" : '<input type=number min="1" id="quantity" name="quantity" value="1">'
     super({
-      title: game.i18n.localize("ls.quantity"),
+      title: 'title' in options ? options['title'] : game.i18n.localize("ls.quantity"),
       content: `
             <form>
                 <div class="form-group">
-                    <label>` + game.i18n.localize("ls.quantity") + `:</label>
-                    <input type=number min="1" id="quantity" name="quantity" value="1">
+                    <label>${'label' in options ? options['label'] : game.i18n.localize("ls.quantity")}</label>
+                    ${chooseQuantity}
                 </div>
             </form>`,
       buttons: {
@@ -37,7 +38,7 @@ class QuantityDialog extends Dialog {
       default: "yes",
       close: () => {
         if (applyChanges) {
-          var quantity = document.getElementById('quantity').value
+          var quantity = Number('quantity' in options ? options['quantity'] : document.getElementById('quantity').value)
 
           if (isNaN(quantity)) {
             console.log("Loot Sheet | Item quantity invalid");
@@ -939,33 +940,51 @@ Hooks.on('renderActorDirectory', (app, html, data) => {
       }
     });
     
+    //if (data.actorId === actorDestId) {
+    //  ui.notifications.error(game.i18n.localize("ERROR.lsWhyGivingToYourself"));
+    //  console.log("Loot Sheet | Ignoring giving something to same person")
+    //  return false;
+    //}
+    
+    let options = {}
     if (data.actorId === actorDestId) {
-      ui.notifications.error(game.i18n.localize("ERROR.lsWhyGivingToYourself"));
-      console.log("Loot Sheet | Ignoring giving something to same person")
-      return false;
+      if(item.data.quantity == 1) {
+        ui.notifications.error(game.i18n.localize("ERROR.lsWhyGivingToYourself"));
+        console.log("Loot Sheet | Ignoring giving something to same person")
+        return false;
+      }
+      options['title'] = game.i18n.localize("ls.giveTitleSplit");
+      options['acceptLabel'] = game.i18n.localize("ls.split");
+    } else if(item.data.quantity == 1) {
+      options['title'] = game.i18n.localize("ls.give");
+      options['label'] = game.i18n.format("ls.giveContentSingle", {item: item.name, actor: receiver.name });
+      options['quantity'] = 1
+      options['acceptLabel'] = game.i18n.localize("ls.give");
+    } else {
+      options['title'] = game.i18n.format("ls.giveTitle", {item: item.name, actor: receiver.name });
+      options['label'] = game.i18n.localize("ls.giveContent");
+      options['acceptLabel'] = game.i18n.localize("ls.give");
     }
     
-    Dialog.confirm({
-      title: game.i18n.localize("ls.giveConfirmTitle"),
-      content: game.i18n.format("ls.giveConfirmContent", { actor: receiver.data.name, item: data.data.name }),
-      yes: () => {
-        if( game.user.isGM ) {
-          lsGiveItem(data.actorId, actorDestId, data.data._id)
-        } else {
-          // confirmation message
-          const packet = {
-            type: "give",
-            giverId: data.actorId,
-            giverItemId: data.data._id,
-            receiverId: actorDestId,
-            processorId: targetGm.id
-          };
-          console.log(`Loot Sheet | Sending packet to ${targetGm.id}`)
-          game.socket.emit(LootSheetPf1NPC.SOCKET, packet);
-        }
-      },
-      no: () => console.log("Loot Sheet | Give item cancelled")
-    });
+    let d = new QuantityDialog((quantity) => {
+    
+      if( game.user.isGM ) {
+        lsGiveItem(data.actorId, actorDestId, data.data._id, quantity)
+      } else {
+        const packet = {
+          type: "give",
+          giverId: data.actorId,
+          giverItemId: data.data._id,
+          receiverId: actorDestId,
+          processorId: targetGm.id,
+          quantity: quantity
+        };
+        console.log(`Loot Sheet | Sending packet to ${actorDestId}`)
+        game.socket.emit(LootSheetPf1NPC.SOCKET, packet);
+      }
+    }, options);
+    d.render(true);
+
   }
   
   html.find('li.actor').each((i, li) => {
@@ -1268,7 +1287,7 @@ Hooks.once("init", () => {
       }
       
       if (data.type === "give") {
-        lsGiveItem(data.giverId, data.receiverId, data.giverItemId);
+        lsGiveItem(data.giverId, data.receiverId, data.giverItemId, data.quantity);
       }
     }
     if (data.type === "error" && data.targetId === game.user.actorId) {
@@ -1289,7 +1308,9 @@ Hooks.once("init", () => {
 /**
  * Global function to give something to somebody else
  */
-function lsGiveItem(giverId, receiverId, itemId) {
+function lsGiveItem(giverId, receiverId, itemId, quantity) {
+  quantity = Number(quantity)  // convert to number (just in case)
+  
   let giver = game.actors.get(giverId);
   let receiver = game.actors.get(receiverId);
  
@@ -1299,19 +1320,37 @@ function lsGiveItem(giverId, receiverId, itemId) {
       giverUser = u;
     }
   });
+    
+  if(quantity <= 0) {
+    return;
+  }
   
   if (giver && receiver) {
     const item = giver.getEmbeddedEntity("OwnedItem", itemId);
+    item.data.quantity = Number(item.data.quantity)  // convert to number (just in case)
+
     if (item) {
-      giver.deleteEmbeddedEntity("OwnedItem", item._id);
-      receiver.createEmbeddedEntity("OwnedItem", item);
+      if(quantity > item.data.quantity) {
+        quantity = item.data.quantity
+      }
+      if(item.data.quantity == quantity) {
+        giver.deleteEmbeddedEntity("OwnedItem", item._id);
+        receiver.createEmbeddedEntity("OwnedItem", item);
+      } else {
+        let remainingQuantity = item.data.quantity - quantity
+        item.data.quantity = quantity
+        receiver.createEmbeddedEntity("OwnedItem", item);
+        giver.updateEmbeddedEntity("OwnedItem", { _id: item._id, data: { quantity: remainingQuantity }});
+      }
       console.log(`Loot Sheet | ${giver.name} gave ${item.name} to ${receiver.name}`)
       
-      let message = game.i18n.format("ls.chatGive", {giver: giver.data.name, receiver: receiver.data.name, quantity: item.data.quantity, item: item.name});
-      ChatMessage.create({
-        user: giverUser ? giverUser._id : game.user._id,
-        content: message
-      });
+      if(giverId != receiverId) {
+        let message = game.i18n.format("ls.chatGive", {giver: giver.data.name, receiver: receiver.data.name, quantity: quantity, item: item.name});
+        ChatMessage.create({
+          user: giverUser ? giverUser._id : game.user._id,
+          content: message
+        });
+      }
     } else {
       console.log("Loot Sheet | Give operation failed because item (giver) couldn't be found!");
     }

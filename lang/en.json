@@ -31,6 +31,8 @@
   "ls.cancel": "Cancel",
   "ls.update": "Update",
   "ls.purchase": "Purchase",
+  "ls.give": "Give",
+  "ls.split": "Split",
   "ls.weapons": "Weapons",
   "ls.equipment": "Equipment",
   "ls.consumables": "Consumables",
@@ -92,6 +94,8 @@
   "ls.sp": "sp",
   "ls.cp": "cp",
   
-  "ls.giveConfirmTitle": "Give item",
-  "ls.giveConfirmContent": "Are you sure you want to give <em>{item}</em> to <b>{actor}</b>?"
+  "ls.giveTitleSplit": "Split quantity",
+  "ls.giveTitle": "Give {item} to {actor}",
+  "ls.giveContent": "How many?",
+  "ls.giveContentSingle": "Are you sure you want to give <em>{item}</em> to <b>{actor}</b>?"
 }

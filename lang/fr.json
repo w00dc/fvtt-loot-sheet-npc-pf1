@@ -31,6 +31,8 @@
   "ls.cancel": "Annuler",
   "ls.update": "Mettre à jour",
   "ls.purchase": "Acheter",
+  "ls.give": "Donner",
+  "ls.split": "Diviser",
   "ls.weapons": "Armes",
   "ls.equipment": "Armures/bouclier",
   "ls.consumables": "Consommables",
@@ -91,6 +93,8 @@
   "ls.sp": "pa",
   "ls.cp": "pc",
   
-  "ls.giveConfirmTitle": "Donner objet",
-  "ls.giveConfirmContent": "Êtes-vous sûr de vouloir donner <em>{item}</em> à <b>{actor}</b>?"
+  "ls.giveTitleSplit": "Diviser la quantité",
+  "ls.giveTitle": "Donner {item} à {actor}",
+  "ls.giveContent": "Donner combien?",
+  "ls.giveContentSingle": "Êtes-vous sûr de vouloir donner <em>{item}</em> à <b>{actor}</b>?"
 }
