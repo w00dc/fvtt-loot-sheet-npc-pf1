@@ -112,6 +112,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
 
     // Prepare GM Settings
     this._prepareGMSettings(sheetData.actor);
+    console.log(sheetData)
 
     // Prepare isGM attribute in sheet Data
 
@@ -123,9 +124,12 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
 
     let lootsheettype = await this.actor.getFlag("lootsheetnpcpf1", "lootsheettype");
     if (!lootsheettype) await this.actor.setFlag("lootsheetnpcpf1", "lootsheettype", "Loot");
-    lootsheettype = await this.actor.getFlag("lootsheetnpcpf1", "lootsheettype");
+    //console.log(`Loot Sheet | Loot sheet type = ${lootsheettype}`);
 
+    let rolltable = await this.actor.getFlag("lootsheetnpcpf1", "rolltable");
+    //console.log(`Loot Sheet | Rolltable = ${rolltable}`);
 
+    
     let priceModifier = 1.0;
     if (lootsheettype === "Merchant") {
       priceModifier = await this.actor.getFlag("lootsheetnpcpf1", "priceModifier");
@@ -134,6 +138,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     }
 
     sheetData.lootsheettype = lootsheettype;
+    sheetData.rolltable = rolltable;
     sheetData.priceModifier = priceModifier;
     sheetData.rolltables = game.tables.entities;
 
@@ -172,7 +177,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
       // Price Modifier
       html.find('.price-modifier').click(ev => this._priceModifier(ev));
 
-      html.find('.merchant-settings').change(ev => this._merchantSettingChange(ev));
+      //html.find('.merchant-settings').change(ev => this._merchantSettingChange(ev));
       html.find('.update-inventory').click(ev => this._merchantInventoryUpdate(ev));
     }
 
@@ -181,13 +186,6 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
 
     // Loot Item
     html.find('.item-loot').click(ev => this._lootItem(ev));
-
-    // Sheet Type
-    html.find('.sheet-type').change(ev => this._changeSheetType(ev, html));
-
-    // Roll Table
-    //html.find('.sheet-type').change(ev => this._changeSheetType(ev, html));
-
   }
 
   /* -------------------------------------------- */
@@ -198,8 +196,12 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
    */
   async _merchantSettingChange(event, html) {
     event.preventDefault();
-    //console.log("Loot Sheet | Merchant settings changed");
+    console.log("Loot Sheet | Merchant settings changed", event);
 
+    if(!game.user.isGM) {
+      return;
+    }
+    
     const moduleNamespace = "lootsheetnpcpf1";
     const expectedKeys = ["rolltable", "shopQty", "itemQty"];
 
@@ -216,6 +218,28 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
       await this.actor.unsetFlag(moduleNamespace, targetKey, event.target.value);
     }
   }
+  
+  /* -------------------------------------------- */
+  /*  Form Submission                             */
+  /* -------------------------------------------- */
+
+  /**
+   * Extend the parent class _updateObject method to ensure that damage ends up in an Array
+   * @private
+   */
+  _updateObject(event, formData) {
+    super._updateObject(event, formData);
+    let flags = Object.entries(formData).filter(e => e[0].startsWith("flags."));
+    let actor = this.object
+    for(let i=0; i<flags.length; i++) {
+      const name = flags[i][0].split(".")
+      const value = flags[i][1]
+      if( name.length == 3 ) {
+        actor.setFlag(name[1], name[2], value)
+      }
+    }
+  }
+
 
   /* -------------------------------------------- */
 
@@ -227,10 +251,16 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     event.preventDefault();
     //console.log("Loot Sheet | _merchantInventoryUpdate")
 
+    if(!game.user.isGM) {
+      return;
+    }
+    
+    console.log(this.actor)
     const moduleNamespace = "lootsheetnpcpf1";
-    const rolltableName = this.actor.getFlag(moduleNamespace, "rolltable");
-    const shopQtyFormula = this.actor.getFlag(moduleNamespace, "shopQty") || "1";
-    const itemQtyFormula = this.actor.getFlag(moduleNamespace, "itemQty") || "1";
+    const rolltableName = await this.actor.getFlag(moduleNamespace, "rolltable");
+    const shopQtyFormula = await this.actor.getFlag(moduleNamespace, "shopQty") || "1";
+    const itemQtyFormula = await this.actor.getFlag(moduleNamespace, "itemQty") || "1";
+    console.log(itemQtyFormula)
 
     if (!rolltableName || rolltableName.length == 0) {
       return ui.notifications.error(game.i18n.format("ERROR.lsChooseTable"));
@@ -282,6 +312,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
       itemQtyRoll.roll();
       console.log(`Loot Sheet | Adding ${itemQtyRoll.result} x ${newItem.name}`)
       newItem.data.data.quantity = itemQtyRoll.result;
+      console.log(newItem)
 
       await this.actor.createEmbeddedEntity("OwnedItem", newItem);
     }
@@ -338,26 +369,6 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
   /* -------------------------------------------- */
 
   /**
-   * Handle sheet type change
-   * @private
-   */
-  async _changeSheetType(event, html) {
-    event.preventDefault();
-    //console.log("Loot Sheet | Sheet Type changed", event);
-
-    let currentActor = this.actor;
-
-    let selectedIndex = event.target.selectedIndex;
-
-    let selectedItem = event.target[selectedIndex].value;
-
-    await currentActor.setFlag("lootsheetnpcpf1", "lootsheettype", selectedItem);
-
-  }
-
-  /* -------------------------------------------- */
-
-  /**
    * Handle buy item
    * @private
    */
@@ -382,10 +393,15 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     if (game.user.actorId) {
       let itemId = $(event.currentTarget).parents(".item").attr("data-item-id");
       let quantity = Number($(event.currentTarget).parents(".item").attr("data-item-quantity"));
+      let itemName = $(event.currentTarget).parents(".item").find("h4").text()
 
       let options = { acceptLabel: game.i18n.localize("ls.purchase") }
       if(quantity == 1) {
+        options['title'] = game.i18n.localize("ls.purchase")
+        options['label'] = game.i18n.format("ls.buyContent", { item: itemName })
         options['quantity'] = 1
+      } else {
+        options['title'] = game.i18n.format("ls.buyTitle", { item: itemName })
       }
       
       let d = new QuantityDialog((quantity) => {
@@ -438,8 +454,11 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
 
       let options = { acceptLabel: game.i18n.localize("ls.loot") }
       if(quantity == 1) {
+        options['title'] = game.i18n.localize("ls.loot")
         options['label'] = game.i18n.format("ls.lootContent", { item: itemName })
         options['quantity'] = 1
+      } else {
+        options['title'] = game.i18n.format("ls.lootTitle", { item: itemName })
       }
       
       let d = new QuantityDialog((quantity) => {
@@ -517,10 +536,12 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
       if (u != "default" && actorData.permission[u] == 3) {
         //console.log("Loot Sheet | u in actorData.permission", u);
         let player = game.users.get(u);
-        //console.log("Loot Sheet | player", player);
-        let actor = game.actors.get(player.data.character);
-        //console.log("Loot Sheet | actor", actor);
-        if (actor !== null && (player.data.role === 1 || player.data.role === 2)) owners.push(actor);
+        if(player) {
+          //console.log("Loot Sheet | player", player);
+          let actor = game.actors.get(player.data.character);
+          //console.log("Loot Sheet | actor", actor);
+          if (actor !== null && (player.data.role === 1 || player.data.role === 2)) owners.push(actor);
+        }
       }
     }
 
@@ -615,18 +636,12 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
 
     //console.log("Loot Sheet | Current actor: " + playerId);
 
-    this._updatePermissions(actorData, playerId, newLevel, event);
+    let updateData = { permission: {} }
+    updateData.permission[playerId] = newLevel;
+    this.actor.update( updateData );    
     this._onSubmit(event);
   }
 
-  _updatePermissions(actorData, playerId, newLevel, event) {
-    // Read player permission on this actor and adjust to new level
-    let currentPermissions = duplicate(actorData.permission);
-    currentPermissions[playerId] = newLevel;
-    // Save updated player permissions
-    const lootPermissions = new PermissionControl(this.actor);
-    lootPermissions._updateObject(event, currentPermissions);
-  }
 
   /* -------------------------------------------- */
 
@@ -800,8 +815,9 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
       else
         currencySplit[c] = 0
     }
-
+    
     let loot = {}
+    loot.warning = actorData.permission.default != 0
     loot.players = players;
     loot.ownerCount = owners.length;
     loot.currency = currencySplit;

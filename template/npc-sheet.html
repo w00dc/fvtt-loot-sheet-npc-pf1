@@ -55,7 +55,11 @@
                   <label class="denomination {{k}}">{{ lookup ../config.currencies k }}</label>
                   <input type="text" name="data.currency.{{k}}" value="{{v}}" data-dtype="Number"/>
                   <label class="item currency-controls" data-item-id="{{k}}">
-                    <a class="currency-controls item-control item-loot" title="{{localize "ls.lootCoins"}}"><i class="fas fa-gem"></i></a>
+                    {{#if ../owner}}
+                      {{#unless ../../isGM}}
+                      <a class="currency-controls item-control item-loot" title="{{localize "ls.lootCoins"}}"><i class="fas fa-gem"></i></a>
+                      {{/unless}}
+                    {{/if}}
                   </label>
                 {{/each}}
               </ol>
@@ -66,7 +70,7 @@
                 {{#each actor.features as |section sid|}}
                   <li class="item flexrow inventory-header">
                     <h3 class="item-name">{{section.label}}</h3>
-                    {{#if ../owner}}
+                    {{#if ../isGM}}
                     <div class="item-controls">
                       <a class="item-control item-create" title="{{localize "ls.createItem"}}" data-type="{{section.type}}">
                       <i class="fas fa-plus"></i> {{localize "ls.add"}}
@@ -89,14 +93,22 @@
                         </div>
                         <div class="item-controls">
                           {{#ifeq ../../lootsheettype "Loot"}}
-                            <a class="item-control item-loot" title="{{localize "ls.lootItem"}}"><i class="fas fa-gem"></i></a>
+                            {{#if ../../owner}}
+                              {{#unless ../../isGM}}
+                              <a class="item-control item-loot" title="{{localize "ls.lootItem"}}"><i class="fas fa-gem"></i></a>
+                              {{/unless}}
+                            {{/if}}
                           {{/ifeq}}
                           
                           {{#ifeq ../../lootsheettype "Merchant"}}
-                            <a class="item-control item-buy" title="{{localize "ls.buyItem"}}"><i class="fas fa-dollar-sign"></i></a>
+                            {{#if ../../owner}}
+                              {{#unless ../../isGM}}
+                              <a class="item-control item-buy" title="{{localize "ls.buyItem"}}"><i class="fas fa-dollar-sign"></i></a>
+                              {{/unless}}
+                            {{/if}} 
                           {{/ifeq}} 
                           
-                          {{#if ../../owner}}
+                          {{#if ../../isGM}}
                             <a class="item-control item-edit" title="{{localize "ls.editItem"}}"><i class="fas fa-edit"></i></a>
                             <a class="item-control item-delete" title="{{localize "ls.deleteItem"}}"><i class="fas fa-trash"></i></a>
                           {{/if}}

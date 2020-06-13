@@ -24,6 +24,7 @@
   "ERROR.lsNotAutorizedToGive": "You're not autorized to give items that you don't own!",
   "ERROR.lsWhyGivingToYourself": "Why would you give that item to yourself??",
   "ERROR.lsGiveInvalidType": "You cannot give this type of element!",
+  "ERROR.lsInvalidParentPermission": "Doesn't work properly if default permission is not 'None'. Please fix the actor's permissions!",
     
   "ls.quantity": "Quantity",
   "ls.price": "Price (in gp)",
@@ -48,8 +49,8 @@
   "ls.chatGive": "{giver} gave {quantity} x {item} to {receiver}.",
   
   "ls.permissionNoaccess": "None (cannot access sheet)",
-  "ls.permissionObserver": "Observer (access to sheet but can only purchase items if merchant sheet type)",
-  "ls.permissionOwner": "Owner (can access items and share coins)",
+  "ls.permissionObserver": "Observer (access to sheet but cannot do any action)",
+  "ls.permissionOwner": "Owner (can loot/buy items and coins)",
   
   "ls.priceModifierTitle": "Price Modifier",
   "ls.priceModifierTooltip": "This uses a percentage factor where 100% is the current price, 0% is 0, and 200% is double the price.",
@@ -99,6 +100,8 @@
   "ls.giveTitle": "Give {item} to {actor}",
   "ls.giveContent": "How many?",
   "ls.giveContentSingle": "Are you sure you want to give <em>{item}</em> to <b>{actor}</b>?",
+  "ls.lootTitle": "Loot {item}",
   "ls.lootContent": "Are you sure you want to loot <em>{item}</em>?",
+  "ls.buyTitle": "Buy {item}",
   "ls.buyContent": "Are you sure you want to buy <em>{item}</em>?"
 }

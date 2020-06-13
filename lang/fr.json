@@ -24,6 +24,7 @@
   "ERROR.lsNotAutorizedToGive": "Vous n'êtes pas autorisé à donner des objets dont vous n'êtes pas le propriétaire!",
   "ERROR.lsWhyGivingToYourself": "Pourquoi voudriez-vous donner cet objet à vous-même??",
   "ERROR.lsGiveInvalidType": "Vous ne pouvez pas donner ce type d'élément!",
+  "ERROR.lsInvalidParentPermission": "Ne fonctionne pas si les permissions par défaut ne sont pas 'None'. Veuillez corriger les permissions de l'acteur!",
     
   "ls.quantity": "Quantité",
   "ls.price": "Prix (en po)",
@@ -48,8 +49,8 @@
   "ls.chatGive": "{giver} a donné {quantity} x {item} à {receiver}.",
   
   "ls.permissionNoaccess": "Aucun (ne peut accéder au butin)",
-  "ls.permissionObserver": "Observateur (peut accéder à la feuille mais ne peut qu'acheter des objets si c'est un marchand)",
-  "ls.permissionOwner": "Propriétaire (peut accéder aux objets et partager le butin)",
+  "ls.permissionObserver": "Observateur (peut accéder à la feuille mais ne peut faire aucune action)",
+  "ls.permissionOwner": "Propriétaire (peut accéder acheter/s'approprier des objets et des pièces)",
   
   "ls.priceModifierTitle": "Modificateur de prix",
   "ls.priceModifierTooltip": "Utilisation d'un facteur de prix, 100% set le prix normal, 0% est 0, et 200% signifie un prix doublé.",
@@ -97,5 +98,9 @@
   "ls.giveTitleSplit": "Diviser la quantité",
   "ls.giveTitle": "Donner {item} à {actor}",
   "ls.giveContent": "Donner combien?",
-  "ls.giveContentSingle": "Êtes-vous sûr de vouloir donner <em>{item}</em> à <b>{actor}</b>?"
+  "ls.giveContentSingle": "Êtes-vous sûr de vouloir donner <em>{item}</em> à <b>{actor}</b>?",
+  "ls.lootTitle": "S'approprier {item}",
+  "ls.lootContent": "Êtes-vous sûr de vouloir vous approprier <em>{item}</em>?",
+  "ls.buyTitle": "Achter {item}",
+  "ls.buyContent": "Êtes-vous sûr de vouloir acheter <em>{item}</em>?"
 }
