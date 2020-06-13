@@ -12,6 +12,11 @@
       <button class="price-modifier" type="price-modifier" name="price-modifier" value=""><i class="fa fa-balance-scale"></i> {{localize "ls.priceModifierTitle"}}</button>
     </div>
     {{/ifeq}}
+    {{#ifeq lootsheettype "Loot"}}
+    <div class="charbutton">
+      <button class="convert-loot" type="convert-loot" name="convert-loot" value=""><i class="fa fa-coins"></i> {{localize "ls.convertLootTitle"}}</button>
+    </div>
+    {{/ifeq}}
     {{/if}}
     
   </header>

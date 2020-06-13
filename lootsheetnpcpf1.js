@@ -176,6 +176,9 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
       // Price Modifier
       html.find('.price-modifier').click(ev => this._priceModifier(ev));
 
+      // Price Modifier
+      html.find('.convert-loot').click(ev => this._convertLoot(ev));
+      
       //html.find('.merchant-settings').change(ev => this._merchantSettingChange(ev));
       html.find('.update-inventory').click(ev => this._merchantInventoryUpdate(ev));
     }
@@ -478,7 +481,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
   /* -------------------------------------------- */
 
   /**
-   * Handle price modifier
+   * Handle price modifier.
    * @private
    */
   async _priceModifier(event) {
@@ -512,11 +515,49 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     });
 
   }
+  
+  /**
+   * Handle conversion to loot. This function converts (and removes) all items
+   * on the Loot Sheet into coins. Items are sold according to the normal rule
+   * (50% or 100% for trade goods). Price is rounded. Unidentified items are
+   * sold according to their unidentified price.
+   * 
+   * @private
+   */
+  async _convertLoot(event) {
+    event.preventDefault();
+    //console.log("Loot Sheet | _convertLoot")
+
+    
+    Dialog.confirm({
+      title: game.i18n.localize("ls.convertLootTitle"),
+      content: game.i18n.localize("ls.convertLootMessage"),
+      yes: () => {
+        let total = 0
+        let deleteList = []
+        this.actor.items.forEach( item  => {
+            const itemCost = item.data.data.identified || !item.data.data.unidentified.price || item.data.data.unidentified.price == 0 ? item.data.data.price : item.data.data.unidentified.price
+            total += itemCost
+            deleteList.push(item._id)
+          }
+        );
+        
+        let funds = duplicate(this.actor.data.data.currency)
+        funds.gp += Math.round(total)
+        
+        this.actor.update({ "data.currency": funds });
+        this.actor.deleteEmbeddedEntity("OwnedItem", deleteList)
+      },
+      no: () => {}
+    });
+  }
 
   /* -------------------------------------------- */
 
   /**
-   * Handle distribution of coins
+   * Handle distribution of coins. This function splits all coins
+   * into all characters/players that have "act" permissions.
+   * 
    * @private
    */
   async _distributeCoins(event) {

@@ -57,6 +57,9 @@
   "ls.priceModifierTooltip": "Utilisation d'un facteur de prix, 100% set le prix normal, 0% est 0, et 200% signifie un prix doublé.",
   "ls.priceModifierText": "Utiliser le curseur pour augmenter ou réduire le prix de tous les objets de l'inventaire.",
   
+  "ls.convertLootTitle": "Convertir en pièces",
+  "ls.convertLootMessage": "Êtes-vous sûr de vouloir convertir tous les objets en pièces d'or? Les objets seront vendus pour 50% de leur valeur (sauf les objets d'échange). Les objets non-identifiés seront vendus à leur prix non-identifié (si disponible).",
+  
   "ls.lootName": "Nom du Marchant/Butin",
   "ls.noAccesToSheet": "Vous n'avez pas accès à cette feuille de marchant/butin!",
   "ls.inventory": "Inventaire",

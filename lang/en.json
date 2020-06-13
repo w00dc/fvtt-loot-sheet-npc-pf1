@@ -57,6 +57,9 @@
   "ls.priceModifierTooltip": "This uses a percentage factor where 100% is the current price, 0% is 0, and 200% is double the price.",
   "ls.priceModifierText": "Use this slider to increase or decrease the price of all items in this inventory.",
   
+  "ls.convertLootTitle": "Convert to coins",
+  "ls.convertLootMessage": "Are you sure you want to convert all items into coins? Items will be sold for 50% of their price (except TradeGoods). Unidentified items will be sold based on unidentified cost.",
+  
   "ls.lootName": "Merchant/Loot Name",
   "ls.noAccesToSheet": "You don't have access to that Loot/Merchant sheet!",
   "ls.inventory": "Inventory",

@@ -153,7 +153,7 @@ section.sheet-content.content {
 	text-align: right;
 }
 
-button.price-modifier {
+button.price-modifier, button.convert-loot {
 	width: auto;
 	padding: 1px 10px;
 	margin-right: 5px;
