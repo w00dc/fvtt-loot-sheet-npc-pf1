@@ -72,6 +72,7 @@ More features detailed below.
 ### Known Issues:
 - Currently can't get back to original prices, especially if percentage is set to 0.
 - If a player has the sheet open when the GM changes the loot type, the player gets an error from FoundryVTT and must reload. This happens only the first time the type is changed.
+- When a player has 2 items and give 1 to somebody, the sheet doesn't get updated and still show (2).
 
 ### Installation Instructions
 

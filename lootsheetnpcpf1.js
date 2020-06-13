@@ -72,7 +72,6 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     });
 
     const path = "systems/pf1/templates/actors/";
-    if (!game.user.isGM && this.actor.limited) return path + "limited-sheet.html";
     return "modules/lootsheetnpcpf1/template/npc-sheet.html";
   }
 
@@ -112,7 +111,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
 
     // Prepare GM Settings
     this._prepareGMSettings(sheetData.actor);
-    console.log(sheetData)
+    //console.log(sheetData)
 
     // Prepare isGM attribute in sheet Data
 
@@ -141,6 +140,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     sheetData.rolltable = rolltable;
     sheetData.priceModifier = priceModifier;
     sheetData.rolltables = game.tables.entities;
+    sheetData.canAct = game.user.playerId in sheetData.actor.permission && sheetData.actor.permission[game.user.playerId] == 2;
 
     // Return data for rendering
     return sheetData;
@@ -156,7 +156,6 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
    */
   activateListeners(html) {
     //console.log("Loot Sheet | activateListeners")
-    
     super.activateListeners(html);
     
     // Remove dragging capability
@@ -223,10 +222,6 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
   /*  Form Submission                             */
   /* -------------------------------------------- */
 
-  /**
-   * Extend the parent class _updateObject method to ensure that damage ends up in an Array
-   * @private
-   */
   _updateObject(event, formData) {
     super._updateObject(event, formData);
     let flags = Object.entries(formData).filter(e => e[0].startsWith("flags."));
@@ -533,7 +528,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     //console.log("Loot Sheet | actorData", actorData);
     // Calculate owners
     for (let u in actorData.permission) {
-      if (u != "default" && actorData.permission[u] == 3) {
+      if (u != "default" && actorData.permission[u] == 2) {
         //console.log("Loot Sheet | u in actorData.permission", u);
         let player = game.users.get(u);
         if(player) {
@@ -625,7 +620,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
 
     //console.log("Loot Sheet | current level " + level);
 
-    const levels = [0, 2, 3]; //const levels = [0, 2, 3];
+    const levels = [0, 1, 2]; //const levels = [0, 2, 3];
 
     let idx = levels.indexOf(level),
       newLevel = levels[(idx === levels.length - 1) ? 0 : idx + 1];
@@ -638,7 +633,8 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
 
     let updateData = { permission: {} }
     updateData.permission[playerId] = newLevel;
-    this.actor.update( updateData );    
+    this.actor.update( updateData );
+    console.log(this.actor)
     this._onSubmit(event);
   }
 
@@ -715,8 +711,8 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
   _getPermissionIcon(level) {
     const icons = {
       0: '<i class="far fa-circle"></i>',
-      2: '<i class="fas fa-eye"></i>',
-      3: '<i class="fas fa-check"></i>'
+      1: '<i class="fas fa-eye"></i>',
+      2: '<i class="fas fa-check"></i>'
     };
     return icons[level];
   }
@@ -731,8 +727,8 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     //console.log("Loot Sheet | _getPermissionDescription")
     const description = {
       0: game.i18n.localize("ls.permissionNoaccess"),
+      1: game.i18n.localize("ls.permissionLimited"),
       2: game.i18n.localize("ls.permissionObserver"),
-      3: game.i18n.localize("ls.permissionOwner"),
     };
     return description[level];
   }
@@ -775,7 +771,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
 
             u.lootPermission = actorData.permission.default;
 
-            if (actorData.permission.default === 3 && !owners.includes(actor.data._id)) {
+            if (actorData.permission.default === 2 && !owners.includes(actor.data._id)) {
 
               owners.push(actor.data._id);
             }
@@ -793,7 +789,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
             u.lootPermission = actorData.permission[u.data._id];
             //console.log("Loot Sheet | assigning " + actorData.permission[u.data._id] + " permission to hidden field");
 
-            if (actorData.permission[u.data._id] === 3) {
+            if (actorData.permission[u.data._id] === 2) {
               owners.push(actor.data._id);
             }
           }
@@ -824,6 +820,45 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     actorData.flags.loot = loot;
   }
 
+  async _onDrop(event) {
+    event.preventDefault();
+    
+    if (game.user.isGM) {
+      super._onDrop(event)
+    } 
+    // users don't have the rights for the transaction => ask GM to do it
+    else {
+      console.log(this)
+      // Try to extract the data
+      let data;
+      let extraData = {};
+      try {
+        data = JSON.parse(event.dataTransfer.getData('text/plain'));
+        if (data.type !== "Item") return;
+      } catch (err) {
+        return false;
+      }
+      
+      let targetGm = null;
+      game.users.forEach((u) => {
+        if (u.isGM && u.active && u.viewedScene === game.user.viewedScene) {
+          targetGm = u;
+        }
+      });
+
+      if(targetGm && data.actorId && data.data && data.data._id) {
+        const packet = {
+          type: "drop",
+          userId: game.user._id,
+          actorId: data.actorId,
+          itemId: data.data._id,
+          tokenId: this.token.id,
+          processorId: targetGm.id
+        };
+        game.socket.emit(LootSheetPf1NPC.SOCKET, packet);
+      }
+    }
+  }
 
 }
 
@@ -893,35 +928,6 @@ Hooks.on('preCreateOwnedItem', (actor, item, data) => {
       ui.notifications.error(game.i18n.localize("ERROR.lsInvalidType"));
       return false;
     }
-    
-    if(source) {
-      // remove item from the player
-      source.deleteEmbeddedEntity("OwnedItem", item._id)
-      
-      // if merchant => sell item for half the price
-      let lootsheettype = actor.getFlag("lootsheetnpcpf1", "lootsheettype");
-      if (lootsheettype === "Merchant") {
-        let itemPrice = item.data.identified || !item.data.unidentified.price || item.data.unidentified.price == 0 ? item.data.price : item.data.unidentified.price
-        const itemName = item.data.identified || !item.data.unidentified.name || item.data.unidentified.name.length == 0 ? item.name : item.data.unidentified.name        
-
-        itemPrice = Math.round(itemPrice / 2) * item.data.quantity
-        const newAmount = source.data.data.currency.gp + itemPrice
-        source.update({ data: { currency: { gp: newAmount } } })
-        
-        let message = game.i18n.format("ls.chatSell", {seller: source.name, quantity: item.data.quantity, item: itemName, price: itemPrice});
-        ChatMessage.create({
-          user: game.user._id,
-          speaker: {
-            actor: source,
-            alias: source.name
-          },
-          content: message
-        });
-        
-        console.log(`Loot Sheet | Item was sold for ${itemPrice}`)
-      }
-    }
-    
     
   } else return;
 
@@ -1097,6 +1103,10 @@ Hooks.once("init", () => {
     console.log("Loot Sheet | moveItem")
     let item = source.getEmbeddedEntity("OwnedItem", itemId);
 
+    if(!quantity) {
+      quantity = item.data.quantity
+    }
+    
     // Move all items if we select more than the quantity.
     if (item.data.quantity < quantity) {
       quantity = item.data.quantity;
@@ -1118,7 +1128,9 @@ Hooks.once("init", () => {
     destination.createEmbeddedEntity("OwnedItem", newItem);
 
     const itemName = newItem.data.identified || !newItem.data.unidentified.name || newItem.data.unidentified.name.length == 0 ? newItem.name : newItem.data.unidentified.name
+    const itemCost = newItem.data.identified || !newItem.data.unidentified.price || newItem.data.unidentified.price == 0 ? newItem.data.price : newItem.data.unidentified.price
     newItem.showName = itemName
+    newItem.showCost = itemCost
     
     return {
       item: newItem,
@@ -1174,6 +1186,33 @@ Hooks.once("init", () => {
     }
   }
   
+  async function dropOrSellItem(container, giver, itemId) {
+    console.log("Loot Sheet | Drop or sell item")
+    let moved = moveItem(giver, container, itemId);
+    let messageKey = ""
+    let cost = Math.floor(moved.item.showCost)
+    
+    if(container.getFlag("lootsheetnpcpf1", "lootsheettype") === "Merchant") {
+      messageKey = "ls.chatSell"
+      let sellerFunds = duplicate(giver.data.data.currency)
+      if(sellerFunds && moved.item.showCost > 0) {
+        if( moved.item.data.subType !== "tradeGoods" ) {
+          cost = Math.round(cost / 2)
+        }
+        sellerFunds.gp += cost
+        giver.update({ "data.currency": sellerFunds });
+      }
+    } else {
+      messageKey = "ls.chatDrop"
+    }
+  
+    chatMessage(
+      container, giver,
+      game.i18n.format(messageKey, { seller: giver.name, quantity: moved.quantity, price: cost, item: moved.item.showName, container: container.name }), 
+      moved.item);
+  }
+  
+  
   function transaction(seller, buyer, itemId, quantity) {
     console.log("Loot Sheet | Transaction")
 
@@ -1227,7 +1266,7 @@ Hooks.once("init", () => {
     // remove funds from lowest currency to highest
     let remainingFond = 0
     for (const currency of Object.keys(conversionRate).reverse()) {
-      console.log("Rate: " + conversionRate[currency])
+      //console.log("Rate: " + conversionRate[currency])
       if(conversionRate[currency] < 1) {
         const ratio = 1/conversionRate[currency]
         const value = Math.min(itemCost, Math.floor(buyerFunds[currency] / ratio))
@@ -1300,7 +1339,7 @@ Hooks.once("init", () => {
         }
       }
 
-      if (data.type === "loot") {
+      else if (data.type === "loot") {
         let looter = game.actors.get(data.looterId);
         let container = canvas.tokens.get(data.tokenId);
 
@@ -1312,7 +1351,15 @@ Hooks.once("init", () => {
         }
       }
       
-      if (data.type === "give") {
+      else if (data.type === "drop") {
+        let giver = game.actors.get(data.actorId);
+        let container = canvas.tokens.get(data.tokenId);
+        if(giver && container) {
+          dropOrSellItem(container.actor, giver, data.itemId)
+        }
+      }
+      
+      else if (data.type === "give") {
         lsGiveItem(data.giverId, data.receiverId, data.giverItemId, data.quantity);
       }
     }

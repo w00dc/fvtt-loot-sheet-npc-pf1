@@ -45,12 +45,13 @@
   "ls.chatLoot": "{buyer} s'est approprié(e) {quantity} x {name}.",
   "ls.chatLootCoins": "{buyer} s'est approprié(e) {quantity} {currency}.",
   "ls.chatPurchase": "{buyer} a acheté {quantity} x {name} pour {cost} po.",
-  "ls.chatSell": "{seller} a vendu {quantity} x {item} pour {price} po.",
+  "ls.chatSell": "{seller} a vendu {quantity} x {item} pour {price} po. à {container}",
+  "ls.chatDrop": "{seller} a déposé {quantity} x {item} dans {container}",
   "ls.chatGive": "{giver} a donné {quantity} x {item} à {receiver}.",
   
   "ls.permissionNoaccess": "Aucun (ne peut accéder au butin)",
-  "ls.permissionObserver": "Observateur (peut accéder à la feuille mais ne peut faire aucune action)",
-  "ls.permissionOwner": "Propriétaire (peut accéder acheter/s'approprier des objets et des pièces)",
+  "ls.permissionLimited": "Limité (peut accéder à la feuille mais ne peut faire aucune action)",
+  "ls.permissionObserver": "Observateur (peut accéder acheter/s'approprier des objets et des pièces)",
   
   "ls.priceModifierTitle": "Modificateur de prix",
   "ls.priceModifierTooltip": "Utilisation d'un facteur de prix, 100% set le prix normal, 0% est 0, et 200% signifie un prix doublé.",

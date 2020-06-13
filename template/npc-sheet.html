@@ -55,7 +55,7 @@
                   <label class="denomination {{k}}">{{ lookup ../config.currencies k }}</label>
                   <input type="text" name="data.currency.{{k}}" value="{{v}}" data-dtype="Number"/>
                   <label class="item currency-controls" data-item-id="{{k}}">
-                    {{#if ../owner}}
+                    {{#if ../canAct}}
                       {{#unless ../../isGM}}
                       <a class="currency-controls item-control item-loot" title="{{localize "ls.lootCoins"}}"><i class="fas fa-gem"></i></a>
                       {{/unless}}
@@ -93,7 +93,7 @@
                         </div>
                         <div class="item-controls">
                           {{#ifeq ../../lootsheettype "Loot"}}
-                            {{#if ../../owner}}
+                            {{#if ../../canAct}}
                               {{#unless ../../isGM}}
                               <a class="item-control item-loot" title="{{localize "ls.lootItem"}}"><i class="fas fa-gem"></i></a>
                               {{/unless}}
@@ -101,7 +101,7 @@
                           {{/ifeq}}
                           
                           {{#ifeq ../../lootsheettype "Merchant"}}
-                            {{#if ../../owner}}
+                            {{#if ../../canAct}}
                               {{#unless ../../isGM}}
                               <a class="item-control item-buy" title="{{localize "ls.buyItem"}}"><i class="fas fa-dollar-sign"></i></a>
                               {{/unless}}

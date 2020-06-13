@@ -45,12 +45,13 @@
   "ls.chatLoot": "{buyer} looted {quantity} x {name}.",
   "ls.chatLootCoins": "{buyer} looted {quantity} {currency}.",
   "ls.chatPurchase": "{buyer} purchased {quantity} x {name} for {cost} gp.",
-  "ls.chatSell": "{seller} sold {quantity} x {item} for {price} gp.",
+  "ls.chatSell": "{seller} sold {quantity} x {item} for {price} gp. to {container}",
+  "ls.chatDrop": "{seller} dropped {quantity} x {item} into {container}",
   "ls.chatGive": "{giver} gave {quantity} x {item} to {receiver}.",
   
   "ls.permissionNoaccess": "None (cannot access sheet)",
-  "ls.permissionObserver": "Observer (access to sheet but cannot do any action)",
-  "ls.permissionOwner": "Owner (can loot/buy items and coins)",
+  "ls.permissionLimited": "Limited (access to sheet but cannot do any action)",
+  "ls.permissionObserver": "Observer (can loot/buy items and coins)",
   
   "ls.priceModifierTitle": "Price Modifier",
   "ls.priceModifierTooltip": "This uses a percentage factor where 100% is the current price, 0% is 0, and 200% is double the price.",
