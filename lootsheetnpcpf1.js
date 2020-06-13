@@ -381,7 +381,13 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     }
     if (game.user.actorId) {
       let itemId = $(event.currentTarget).parents(".item").attr("data-item-id");
+      let quantity = Number($(event.currentTarget).parents(".item").attr("data-item-quantity"));
 
+      let options = { acceptLabel: game.i18n.localize("ls.purchase") }
+      if(quantity == 1) {
+        options['quantity'] = 1
+      }
+      
       let d = new QuantityDialog((quantity) => {
         const packet = {
           type: "buy",
@@ -393,9 +399,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
         };
         console.log("LootSheetPf1", "Sending buy request to " + targetGm.name, packet);
         game.socket.emit(LootSheetPf1NPC.SOCKET, packet);
-      }, {
-        acceptLabel: game.i18n.localize("ls.purchase")
-      });
+      }, options);
       d.render(true);
     } else {
       console.log("Loot Sheet | No active character for user");
@@ -429,7 +433,15 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     }
     if (game.user.actorId) {
       let itemId = $(event.currentTarget).parents(".item").attr("data-item-id");
+      let quantity = Number($(event.currentTarget).parents(".item").attr("data-item-quantity"));
+      let itemName = $(event.currentTarget).parents(".item").find("h4").text()
 
+      let options = { acceptLabel: game.i18n.localize("ls.loot") }
+      if(quantity == 1) {
+        options['label'] = game.i18n.format("ls.lootContent", { item: itemName })
+        options['quantity'] = 1
+      }
+      
       let d = new QuantityDialog((quantity) => {
         const packet = {
           type: "loot",
@@ -441,9 +453,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
         };
         console.log("LootSheetPf1", "Sending loot request to " + targetGm.name, packet);
         game.socket.emit(LootSheetPf1NPC.SOCKET, packet);
-      }, {
-        acceptLabel: game.i18n.localize("ls.loot")
-      });
+      }, options);
       d.render(true);
     } else {
       console.log("Loot Sheet | No active character for user");

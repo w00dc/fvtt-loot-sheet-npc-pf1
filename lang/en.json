@@ -98,5 +98,7 @@
   "ls.giveTitleSplit": "Split quantity",
   "ls.giveTitle": "Give {item} to {actor}",
   "ls.giveContent": "How many?",
-  "ls.giveContentSingle": "Are you sure you want to give <em>{item}</em> to <b>{actor}</b>?"
+  "ls.giveContentSingle": "Are you sure you want to give <em>{item}</em> to <b>{actor}</b>?",
+  "ls.lootContent": "Are you sure you want to loot <em>{item}</em>?",
+  "ls.buyContent": "Are you sure you want to buy <em>{item}</em>?"
 }
