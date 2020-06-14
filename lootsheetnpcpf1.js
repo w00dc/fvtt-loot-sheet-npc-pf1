@@ -537,7 +537,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
         let deleteList = []
         this.actor.items.forEach( item  => {
             const itemCost = item.data.data.identified || !item.data.data.unidentified.price || item.data.data.unidentified.price == 0 ? item.data.data.price : item.data.data.unidentified.price
-            total += itemCost
+            total += itemCost * item.data.data.quantity
             deleteList.push(item._id)
           }
         );
@@ -937,33 +937,6 @@ Hooks.on('preCreateOwnedItem', (actor, item, data) => {
       return false;
     }
     
-    // spell => convert to scroll (only if GM)
-    if (game.user.isGM && item.type === "spell") {
-      console.log("Loot Sheet | dragged spell item", item);
-
-      item.name = game.i18n.format("ls.scrollof", {name: item.name})
-      item.type = "consumable";
-      item.data.quantity = 1
-      item.data.uses = {
-        per: "single",
-        autoDeductCharges: true
-      }
-      item.data.activation = {
-        cost: 1,
-        type: "standard"
-      }
-      
-      if (item.data.level >= 0 && item.data.level <= 9) {
-        const changeScrollIcon = game.settings.get("lootsheetnpcpf1", "changeScrollIcon");
-        if (changeScrollIcon) item.img = "modules/lootsheetnpcpf1/icons/Scroll" + item.data.level + ".png";
-        
-        // TODO: improve to have pricing per class
-        const pricePerLevel = [ 13, 25, 150, 375, 700, 1125, 1650, 2275, 3000, 3825 ]
-        item.data.price = pricePerLevel[item.data.level];
-      }
-      return;
-    }
-    
     // validate the type of item to be "moved" or "added"
     if(!["weapon","equipment","consumable","loot"].includes(item.type)) {
       ui.notifications.error(game.i18n.localize("ERROR.lsInvalidType"));
@@ -1141,7 +1114,7 @@ Hooks.once("init", () => {
   }
 
   function moveItem(source, destination, itemId, quantity) {
-    console.log("Loot Sheet | moveItem")
+    //console.log("Loot Sheet | moveItem")
     let item = source.getEmbeddedEntity("OwnedItem", itemId);
 
     if(!quantity) {
@@ -1228,7 +1201,7 @@ Hooks.once("init", () => {
   }
   
   async function dropOrSellItem(container, giver, itemId) {
-    console.log("Loot Sheet | Drop or sell item")
+    //console.log("Loot Sheet | Drop or sell item")
     let moved = moveItem(giver, container, itemId);
     let messageKey = ""
     let cost = Math.floor(moved.item.showCost)
@@ -1240,8 +1213,9 @@ Hooks.once("init", () => {
         if( moved.item.data.subType !== "tradeGoods" ) {
           cost = Math.round(cost / 2)
         }
-        sellerFunds.gp += cost
+        sellerFunds["gp"] += cost * moved.quantity
         giver.update({ "data.currency": sellerFunds });
+        giver.update({ "data.currency": sellerFunds }); // 2x required or it will not be stored? WHY???
       }
     } else {
       messageKey = "ls.chatDrop"
@@ -1249,7 +1223,7 @@ Hooks.once("init", () => {
   
     chatMessage(
       container, giver,
-      game.i18n.format(messageKey, { seller: giver.name, quantity: moved.quantity, price: cost, item: moved.item.showName, container: container.name }), 
+      game.i18n.format(messageKey, { seller: giver.name, quantity: moved.quantity, price: cost * moved.quantity, item: moved.item.showName, container: container.name }), 
       moved.item);
   }
   
