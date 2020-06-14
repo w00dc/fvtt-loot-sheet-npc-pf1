@@ -2,7 +2,7 @@
   "name": "lootsheetnpcpf1",
   "title": "Loot Sheet NPC Pathfinder1",
   "description": "This module adds an additional NPC sheet which can be used for loot containers such as chests or shopkeepers.",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "author": "Sven Werlen (originally from Jan Ole Peek (ChalkOne) and Charles Miller (Kage))",
   "systems": ["pf1"],
   "esmodules": ["/lootsheetnpcpf1.js"],
@@ -21,8 +21,8 @@
   ],
   "socket": true,
   "url": "https://github.com/SvenWerlen/fvtt-loot-sheet-npc-pf1",
-  "download": "https://github.com/SvenWerlen/fvtt-loot-sheet-npc-pf1/archive/v-1.2.0.zip",
+  "download": "https://github.com/SvenWerlen/fvtt-loot-sheet-npc-pf1/archive/v-1.2.1.zip",
   "manifest": "https://raw.githubusercontent.com/SvenWerlen/fvtt-loot-sheet-npc-pf1/master/module.json",
   "minimumCoreVersion": "0.6.0",
-  "compatibleCoreVersion": "0.6.0"
+  "compatibleCoreVersion": "0.6.2"
 }
