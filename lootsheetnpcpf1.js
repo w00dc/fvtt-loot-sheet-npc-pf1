@@ -536,7 +536,10 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
         let total = 0
         let deleteList = []
         this.actor.items.forEach( item  => {
-            const itemCost = item.data.data.identified || !item.data.data.unidentified.price || item.data.data.unidentified.price == 0 ? item.data.data.price : item.data.data.unidentified.price
+            let itemCost = item.data.data.identified || !item.data.data.unidentified.price || item.data.data.unidentified.price == 0 ? item.data.data.price : item.data.data.unidentified.price
+            if( item.data.data.subType !== "tradeGoods" ) {
+              itemCost = Math.round(itemCost / 2)
+            }
             total += itemCost * item.data.data.quantity
             deleteList.push(item._id)
           }
