@@ -93,7 +93,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     if(game.user.isGM || item.data.identified) {
       return item.data.price;
     }
-    return item.data.unidentified.price && item.data.unidentified.price > 0 ? item.data.unidentified.price : item.data.price;
+    return item.data.unidentified && item.data.unidentified.price && item.data.unidentified.price > 0 ? item.data.unidentified.price : item.data.price;
   }
   
   /**
@@ -103,7 +103,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     if(game.user.isGM || item.data.identified) {
       return item.name;
     }
-    return item.data.unidentified.name && item.data.unidentified.name.length > 0 ? item.data.unidentified.name : item.name;
+    return item.data.unidentified && item.data.unidentified.name && item.data.unidentified.name.length > 0 ? item.data.unidentified.name : item.name;
   }
 
   async getData() {
