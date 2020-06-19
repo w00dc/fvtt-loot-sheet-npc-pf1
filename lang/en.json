@@ -25,6 +25,7 @@
   "ERROR.lsWhyGivingToYourself": "Why would you give that item to yourself??",
   "ERROR.lsGiveInvalidType": "You cannot give this type of element!",
   "ERROR.lsInvalidParentPermission": "Doesn't work properly if default permission is not 'None'. Please fix the actor's permissions!",
+  "ERROR.lsInvalidMove": "The actor {actor} tried to sell or drop an item from an unlinked token!",
     
   "ls.quantity": "Quantity",
   "ls.price": "Price (in gp)",

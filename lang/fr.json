@@ -25,6 +25,7 @@
   "ERROR.lsWhyGivingToYourself": "Pourquoi voudriez-vous donner cet objet à vous-même??",
   "ERROR.lsGiveInvalidType": "Vous ne pouvez pas donner ce type d'élément!",
   "ERROR.lsInvalidParentPermission": "Ne fonctionne pas si les permissions par défaut ne sont pas 'None'. Veuillez corriger les permissions de l'acteur!",
+  "ERROR.lsInvalidMove": "L'acteur {actor} a tenté de vendre ou déposer un objet depuis un token non-relié!",
     
   "ls.quantity": "Quantité",
   "ls.price": "Prix (en po)",

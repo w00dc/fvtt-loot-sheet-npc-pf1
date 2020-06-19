@@ -93,7 +93,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     if(game.user.isGM || item.data.identified) {
       return item.data.price;
     }
-    return item.data.unidentified && item.data.unidentified.price && item.data.unidentified.price > 0 ? item.data.unidentified.price : item.data.price;
+    return getItemCost(item);
   }
   
   /**
@@ -103,7 +103,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     if(game.user.isGM || item.data.identified) {
       return item.name;
     }
-    return item.data.unidentified && item.data.unidentified.name && item.data.unidentified.name.length > 0 ? item.data.unidentified.name : item.name;
+    return getItemName(item);
   }
 
   async getData() {
@@ -527,8 +527,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
   async _convertLoot(event) {
     event.preventDefault();
     //console.log("Loot Sheet | _convertLoot")
-
-    
+     
     Dialog.confirm({
       title: game.i18n.localize("ls.convertLootTitle"),
       content: game.i18n.localize("ls.convertLootMessage"),
@@ -536,7 +535,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
         let total = 0
         let deleteList = []
         this.actor.items.forEach( item  => {
-            let itemCost = item.data.data.identified || !item.data.data.unidentified.price || item.data.data.unidentified.price == 0 ? item.data.data.price : item.data.data.unidentified.price
+            let itemCost = getItemCost(item.data)
             if( item.data.data.subType !== "tradeGoods" ) {
               itemCost = Math.round(itemCost / 2)
             }
@@ -1119,7 +1118,12 @@ Hooks.once("init", () => {
   function moveItem(source, destination, itemId, quantity) {
     //console.log("Loot Sheet | moveItem")
     let item = source.getEmbeddedEntity("OwnedItem", itemId);
-
+    
+    if(!item) {
+      ui.notifications.warn(game.i18n.format("ERROR.lsInvalidMove", { actor: source.name }));
+      return null;
+    }
+    
     if(!quantity) {
       quantity = item.data.quantity
     }
@@ -1143,11 +1147,8 @@ Hooks.once("init", () => {
 
     newItem.data.quantity = quantity;
     destination.createEmbeddedEntity("OwnedItem", newItem);
-
-    const itemName = newItem.data.identified || !newItem.data.unidentified.name || newItem.data.unidentified.name.length == 0 ? newItem.name : newItem.data.unidentified.name
-    const itemCost = newItem.data.identified || !newItem.data.unidentified.price || newItem.data.unidentified.price == 0 ? newItem.data.price : newItem.data.unidentified.price
-    newItem.showName = itemName
-    newItem.showCost = itemCost
+    newItem.showName = getItemName(newItem)
+    newItem.showCost = getItemCost(newItem)
     
     return {
       item: newItem,
@@ -1195,6 +1196,7 @@ Hooks.once("init", () => {
     }
     else {
       let moved = moveItem(container, looter, itemId, quantity);
+      if(!moved) return;
 
       chatMessage(
         container, looter,
@@ -1206,6 +1208,7 @@ Hooks.once("init", () => {
   async function dropOrSellItem(container, giver, itemId) {
     //console.log("Loot Sheet | Drop or sell item")
     let moved = moveItem(giver, container, itemId);
+    if(!moved) return;
     let messageKey = ""
     let cost = Math.floor(moved.item.showCost)
     
@@ -1230,7 +1233,6 @@ Hooks.once("init", () => {
       moved.item);
   }
   
-  
   function transaction(seller, buyer, itemId, quantity) {
     console.log("Loot Sheet | Transaction")
 
@@ -1245,7 +1247,7 @@ Hooks.once("init", () => {
     let sellerModifier = seller.getFlag("lootsheetnpcpf1", "priceModifier");
     if (!sellerModifier) sellerModifier = 1.0;
 
-    let itemCost = sellItem.data.identified || !sellItem.data.unidentified.price || sellItem.data.unidentified.price == 0 ? sellItem.data.price : sellItem.data.unidentified.price
+    let itemCost = getItemCost(sellItem)
     itemCost = Math.round(itemCost * sellerModifier * 100) / 100;
     itemCost *= quantity;
     let buyerFunds = duplicate(buyer.data.data.currency);
@@ -1448,4 +1450,21 @@ function lsGiveItem(giverId, receiverId, itemId, quantity) {
   } else {
     console.log("Loot Sheet | Give operation failed because actors (giver or receiver) couldn't be found!");
   }
+}
+
+
+/**
+  * Returns the unidentified name (if unidentified and specified) or the name
+  */
+function getItemName(item) {
+  if(!item) return ""
+  else return item.data.identified || !item.data.unidentified || !item.data.unidentified.name || item.data.unidentified.name.length == 0 ? item.name : item.data.unidentified.name
+}
+
+/**
+  * Returns the unidentified cost (if unidentified and specified) or the cost
+  */
+function getItemCost(item) {
+  if(!item) return 0
+  else return Number(item.data.identified || item.data.unidentified == null ? item.data.price : item.data.unidentified.price)
 }
