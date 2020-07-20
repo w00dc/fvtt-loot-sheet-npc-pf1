@@ -141,7 +141,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     sheetData.priceModifier = priceModifier;
     sheetData.rolltables = game.tables.entities;
     sheetData.canAct = game.user.playerId in sheetData.actor.permission && sheetData.actor.permission[game.user.playerId] == 2;
-
+    
     // Return data for rendering
     return sheetData;
   }
@@ -673,11 +673,13 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     let playerId = field[0].name;
 
     //console.log("Loot Sheet | Current actor: " + playerId);
-
-    let updateData = { permission: {} }
-    updateData.permission[playerId] = newLevel;
-    this.actor.update( updateData );
-    console.log(this.actor)
+    //console.log(`Current entity permissions are: ${JSON.stringify(this.actor.data.permission)}`);
+    
+    let permissions = duplicate(this.actor.data.permission)
+    permissions[playerId] = newLevel;
+    //console.log(`About to change permissions are: ${JSON.stringify(permissions)}`);
+    this.actor.update( { permission: permissions }, {diff: false});    
+    //console.log(`Newly changed entity permissions are: ${JSON.stringify(this.actor.data.permission)}`);
     this._onSubmit(event);
   }
 
