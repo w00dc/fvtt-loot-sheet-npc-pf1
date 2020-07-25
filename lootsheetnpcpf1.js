@@ -2,6 +2,8 @@
  * Adapted for PF1 system from original module: https://github.com/jopeek/fvtt-loot-sheet-npc-5e
  */ 
 
+window.require=function(name) { throw "Dummy require function!!" };
+
 import {
   ActorSheetPFNPC
 } from "../../systems/pf1/module/actor/sheets/npc.js";
@@ -135,12 +137,33 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
       if (!priceModifier) await this.actor.setFlag("lootsheetnpcpf1", "priceModifier", 1.0);
       priceModifier = await this.actor.getFlag("lootsheetnpcpf1", "priceModifier");
     }
+    
+    let totalItems = 0
+    let totalWeight = 0
+    let totalPrice = 0
+    let maxCapacity = await this.actor.getFlag("lootsheetnpcpf1", "maxCapacity") || 0;
+    let maxLoad = await this.actor.getFlag("lootsheetnpcpf1", "maxLoad") || 0;
+    
+    Object.keys(sheetData.actor.features).forEach( f => sheetData.actor.features[f].items.forEach( i => {  
+      totalItems += i.data.quantity
+      totalWeight += i.data.quantity * i.data.weight
+      totalPrice += i.data.quantity * getItemCost(i)
+    }));
 
     sheetData.lootsheettype = lootsheettype;
     sheetData.rolltable = rolltable;
     sheetData.priceModifier = priceModifier;
     sheetData.rolltables = game.tables.entities;
     sheetData.canAct = game.user.playerId in sheetData.actor.permission && sheetData.actor.permission[game.user.playerId] == 2;
+    sheetData.totalItems = totalItems
+    sheetData.maxItems = maxCapacity > 0 ? " / " + maxCapacity : ""
+    sheetData.itemsWarning = maxCapacity <= 0 || maxCapacity >= totalItems ? "" : "warn"
+    sheetData.totalWeight = Math.ceil(totalWeight)
+    sheetData.maxWeight = maxLoad > 0 ? " / " + maxLoad : ""
+    sheetData.weightWarning = maxLoad <= 0 || maxLoad >= totalWeight ? "" : "warn"
+    sheetData.totalPrice = totalPrice
+    
+    
     
     // Return data for rendering
     return sheetData;
@@ -154,17 +177,21 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
    * Activate event listeners using the prepared sheet HTML
    * @param html {HTML}   The prepared HTML object ready to be rendered into the DOM
    */
-  activateListeners(html) {
+  async activateListeners(html) {
     //console.log("Loot Sheet | activateListeners")
     super.activateListeners(html);
     
-    // Remove dragging capability
-    let handler = ev => this._onDragItemStart(ev);
-    html.find('li.item').each((i, li) => {
-      if ( li.classList.contains("inventory-header") ) return;
-      li.setAttribute("draggable", false);
-      li.removeEventListener("dragstart", handler);
-    });
+    const moduleNamespace = "lootsheetnpcpf1";
+    const dragEnabled = await this.actor.getFlag(moduleNamespace, "dragEnabled");
+    if(!dragEnabled) {    
+      // Remove dragging capability
+      let handler = ev => this._onDragItemStart(ev);
+      html.find('li.item').each((i, li) => {
+        if ( li.classList.contains("inventory-header") ) return;
+        li.setAttribute("draggable", false);
+        li.removeEventListener("dragstart", handler);
+      });
+    }
     
     if (this.options.editable) {
       // Toggle Permissions
@@ -691,7 +718,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
    * @private
    */
   _prepareItems(actorData) {
-    //console.log("Loot Sheet | _prepareItems")
+    console.log("Loot Sheet | _prepareItems")
     // Actions
     const features = {
       weapons: {
@@ -873,7 +900,8 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     } 
     // users don't have the rights for the transaction => ask GM to do it
     else {
-      console.log(this)
+      //console.log(this)
+      
       // Try to extract the data
       let data;
       let extraData = {};
@@ -1162,21 +1190,42 @@ Hooks.once("init", () => {
   function moveCoins(source, destination, itemId, quantity) {
     console.log("Loot Sheet | moveCoins")
     
-    // Move all items if we select more than the quantity.
-    let coins = source.data.data.currency[itemId]
-    if (coins < quantity) {
-      quantity = coins;
-    }
-    
-    if (quantity == 0) return null;
+    if(itemId.startsWith("wl_")) {
+      itemId = itemId.substring(3)
+      
+      // Move all items if we select more than the quantity.
+      let coins = source.data.data.altCurrency[itemId]
+      if (coins < quantity) {
+        quantity = coins;
+      }
+      
+      if (quantity == 0) return null;
 
-    const srcUpdate = { data: { currency: { } } };
-    srcUpdate.data.currency[itemId] = source.data.data.currency[itemId] - quantity;
-    source.update(srcUpdate)
-    
-    const dstUpdate = { data: { currency: { } } };
-    dstUpdate.data.currency[itemId] = destination.data.data.currency[itemId] + quantity;
-    destination.update(dstUpdate)
+      const srcUpdate = { data: { altCurrency: { } } };
+      srcUpdate.data.altCurrency[itemId] = source.data.data.altCurrency[itemId] - quantity;
+      source.update(srcUpdate)
+      
+      const dstUpdate = { data: { altCurrency: { } } };
+      dstUpdate.data.altCurrency[itemId] = destination.data.data.altCurrency[itemId] + quantity;
+      destination.update(dstUpdate)
+    }
+    else {
+      // Move all items if we select more than the quantity.
+      let coins = source.data.data.currency[itemId]
+      if (coins < quantity) {
+        quantity = coins;
+      }
+      
+      if (quantity == 0) return null;
+
+      const srcUpdate = { data: { currency: { } } };
+      srcUpdate.data.currency[itemId] = source.data.data.currency[itemId] - quantity;
+      source.update(srcUpdate)
+      
+      const dstUpdate = { data: { currency: { } } };
+      dstUpdate.data.currency[itemId] = destination.data.data.currency[itemId] + quantity;
+      destination.update(dstUpdate)
+    }
     
     return {
       quantity: quantity
@@ -1187,7 +1236,7 @@ Hooks.once("init", () => {
   async function lootItem(container, looter, itemId, quantity) {
     console.log("Loot Sheet | lootItem")
     
-    if (itemId.length == 2) {
+    if (itemId.length == 2 || itemId.startsWith("wl_")) {
       let moved = moveCoins(container, looter, itemId, quantity);
 
       if (moved) {
@@ -1346,6 +1395,9 @@ Hooks.once("init", () => {
       moved.item);
   }
 
+  /*******************************************
+   *          SOCKET HANDLING!
+   *******************************************/
   game.socket.on(LootSheetPf1NPC.SOCKET, data => {
     console.log("Loot Sheet | Socket Message: ", data);
     if (game.user.isGM && data.processorId === game.user.id) {
@@ -1375,7 +1427,8 @@ Hooks.once("init", () => {
       
       else if (data.type === "drop") {
         let giver = game.actors.get(data.actorId);
-        let container = canvas.tokens.get(data.tokenId);
+        let container = canvas.tokens.get(data.tokenId);        
+        
         if(giver && container) {
           dropOrSellItem(container.actor, giver, data.itemId)
         }

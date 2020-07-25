@@ -36,6 +36,19 @@
                 {{/unless}}
 
                 {{#ifeq actor.flags.lootsheetnpcpf1.lootsheettype "Loot"}}
+                    <h3 class="gm-header"><i class="fas fa-tools"></i> {{localize "ls.lsOptions"}}</h3>
+                    <div class="flexrow">
+                        <div class="flexcol"><h4>{{localize "ls.enableDragging"}} <i class="fas fa-info-circle help" title="{{localize "ls.enableDraggingTooltip"}}"></i></h4></div>
+                        <div class="flexcol"><input name="flags.lootsheetnpcpf1.dragEnabled" type="checkbox" value="{{actor.flags.lootsheetnpcpf1.dragEnabled}}" {{#if actor.flags.lootsheetnpcpf1.dragEnabled}}checked{{/if}} /></div>
+                    </div>
+                    <div class="flexrow">
+                        <div class="flexcol"><h4>{{localize "ls.maxCapacity"}} <i class="fas fa-info-circle help" title="{{localize "ls.maxCapacityTooltip"}}"></i></h4></div>
+                        <div class="flexcol"><input name="flags.lootsheetnpcpf1.maxCapacity" type="text" data-dtype="Number" placeholder="e.g. 10" value="{{actor.flags.lootsheetnpcpf1.maxCapacity}}"/></div>
+                    </div>
+                    <div class="flexrow">
+                        <div class="flexcol"><h4>{{localize "ls.maxLoad"}} <i class="fas fa-info-circle help" title="{{localize "ls.maxLoadTooltip"}}"></i></h4></div>
+                        <div class="flexcol"><input name="flags.lootsheetnpcpf1.maxLoad" type="text" data-dtype="Number" placeholder="e.g. 200" value="{{actor.flags.lootsheetnpcpf1.maxLoad}}"/></div>
+                    </div>
                     <h3 class="gm-header"><i class="fas fa-coins"></i> {{localize "ls.coinDistribution"}}</h3>
                     <ol class="coins-list">
                         {{#each actor.flags.loot.currency as |c i|}}

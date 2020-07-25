@@ -96,10 +96,27 @@
   "ls.splitcoins": " {quantity} {currency}",
   "ls.receives": "{actor} receives:",
   
+  "ls.lsOptions": "Options",
+  "ls.enableDragging": "Enable dragging",
+  "ls.enableDraggingTooltip": "A player can drag an item from the loot. Be careful because the item will not be removed from the loot and no message will be displayed in the chat log. When disabled, players are forced to use the loot action to take something.",
+  "ls.maxCapacity": "Max capacity",
+  "ls.maxCapacityTooltip": "Maximum number of items in the loot (empty or 0 means unlimited)",
+  "ls.maxLoad": "Max load",
+  "ls.maxLoadTooltip": "Max weight that can be put in the loot (empty or 0 means unlimited)",
+  
   "ls.pp": "pp",
   "ls.gp": "gp",
   "ls.sp": "sp",
   "ls.cp": "cp",
+  
+  "ls.wl_pp": "pp (weightless)",
+  "ls.wl_gp": "gp (weightless)",
+  "ls.wl_sp": "sp (weightless)",
+  "ls.wl_cp": "cp (weightless)",
+  
+  "ls.totalItems": "Items (count)",
+  "ls.totalPrice": "Total value",
+  "ls.totalWeight": "Total weight",
   
   "ls.giveTitleSplit": "Split quantity",
   "ls.giveTitle": "Give {item} to {actor}",

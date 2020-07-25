@@ -95,10 +95,27 @@
   "ls.splitcoins": " {quantity} {currency}",
   "ls.receives": "{actor} reçoit:",
   
+  "ls.lsOptions": "Options",
+  "ls.enableDragging": "Activer dragging",
+  "ls.enableDraggingTooltip": "Un joueur peut cliquer et glisser un élément depuis le loot directement dans son inventaire. Soyez conscient que l'objet sera alors dupliqué, ne sera pas retiré du butin et aucun message ne sera affiché dans la conversation. Désactivé, les joueurs seront forcés d'utiliser l'action 'S'approprier'.",
+  "ls.maxCapacity": "Capacité max",
+  "ls.maxCapacityTooltip": "Nombre d'objets maximum dans le butin (vide ou 0 signifie aucune limite)",
+  "ls.maxLoad": "Charge max",
+  "ls.maxLoadTooltip": "Poids maximal qui peut être déposé dans le butin (vide ou 0 signifie aucune limite)",
+  
   "ls.pp": "pp",
   "ls.gp": "po",
   "ls.sp": "pa",
   "ls.cp": "pc",
+  
+  "ls.wl_pp": "pp (sans poids)",
+  "ls.wl_gp": "po (sans poids)",
+  "ls.wl_sp": "pa (sans poids)",
+  "ls.wl_cp": "pc (sans poids)",
+  
+  "ls.totalItems": "Nbr. éléments",
+  "ls.totalPrice": "Valeur totale",
+  "ls.totalWeight": "Poids total",
   
   "ls.giveTitleSplit": "Diviser la quantité",
   "ls.giveTitle": "Donner {item} à {actor}",

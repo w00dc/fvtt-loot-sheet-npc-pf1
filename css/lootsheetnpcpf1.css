@@ -26,6 +26,10 @@
 	list-style: none;
 }
 
+.loot-sheet-npc .warn {
+  color: red;
+}
+
 .loot-sheet-npc .gm-settings .sheet-types,
 .loot-sheet-npc .gm-settings .merchant-settings {
 	margin-right: 10px;
@@ -107,14 +111,16 @@
 	width: 95%;
 }
 
-.loot-sheet-npc.sheet .window-content form {
-	overflow: auto !important;
-}
-
 .loot-sheet-npc img.sheet-profile {
 	border: none;
 	max-width: 220px;
 	max-height: 220px;
+}
+
+.loot-sheet-npc img.sheet-profile-small {
+	border: none;
+	max-width: 120px;
+	max-height: 120px;
 }
 
 section.sheet-sidebar.sidebar {
@@ -194,9 +200,19 @@ input#quantity:focus {
 	margin: 0px;
 }
 
-.currency-controls a {
-    flex: 0 0 16px;
-    font-size: 10px;
-    text-align: center;
-    color: #666;
+.loot-sheet-npc .currency-controls a {
+  flex: 0 0 16px;
+  font-size: 10px;
+  text-align: center;
+  color: #666;
+}
+
+.loot-sheet-npc .totals {
+  margin-left: 20px;
+  padding: 10px 0 2px 0;
+}
+
+.loot-sheet-npc .features {
+  height: 530px;
+  overflow-y: scroll;
 }
