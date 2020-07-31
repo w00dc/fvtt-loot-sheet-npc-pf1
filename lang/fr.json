@@ -48,7 +48,7 @@
   "ls.chatPurchase": "{buyer} a acheté {quantity} x {name} pour {cost} po.",
   "ls.chatSell": "{seller} a vendu {quantity} x {item} pour {price} po. à {container}",
   "ls.chatDrop": "{seller} a déposé {quantity} x {item} dans {container}",
-  "ls.chatGive": "{giver} a donné {quantity} x {item} à {receiver}.",
+  "ls.chatGive": "{quantity} x {item} donné/transféré de {giver} à {receiver}.",
   
   "ls.permissionNoaccess": "Aucun (ne peut accéder au butin)",
   "ls.permissionLimited": "Limité (peut accéder à la feuille mais ne peut faire aucune action)",

@@ -4,10 +4,8 @@
 
 window.require=function(name) { throw "Dummy require function!!" };
 
-import {
-  ActorSheetPFNPC
-} from "../../systems/pf1/module/actor/sheets/npc.js";
-
+import { ActorSheetPFNPC } from "../../systems/pf1/module/actor/sheets/npc.js";
+import { LootSheetActions } from "./scripts/actions.js";
 
 class QuantityDialog extends Dialog {
   constructor(callback, options) {
@@ -95,7 +93,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     if(game.user.isGM || item.data.identified) {
       return item.data.price;
     }
-    return getItemCost(item);
+    return LootSheetActions.getItemCost(item);
   }
   
   /**
@@ -105,7 +103,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     if(game.user.isGM || item.data.identified) {
       return item.name;
     }
-    return getItemName(item);
+    return LootSheetActions.getItemName(item);
   }
 
   async getData() {
@@ -147,7 +145,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     Object.keys(sheetData.actor.features).forEach( f => sheetData.actor.features[f].items.forEach( i => {  
       totalItems += i.data.quantity
       totalWeight += i.data.quantity * i.data.weight
-      totalPrice += i.data.quantity * getItemCost(i)
+      totalPrice += i.data.quantity * LootSheetActions.getItemCost(i)
     }));
 
     sheetData.lootsheettype = lootsheettype;
@@ -430,8 +428,9 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
       let d = new QuantityDialog((quantity) => {
         const packet = {
           type: "buy",
-          buyerId: game.user.actorId,
-          tokenId: this.token.id,
+          actorId: game.user.actorId,
+          tokenId: this.token ? this.token.id : undefined,
+          targetActorId: this.token ? undefined : this.actor.id,
           itemId: itemId,
           quantity: quantity,
           processorId: targetGm.id
@@ -467,9 +466,6 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
       return ui.notifications.error(game.i18n.localize("ERROR.lsNoActiveGM"));
     }
 
-    if (this.token === null) {
-      return ui.notifications.error(game.i18n.localize("ERROR.lsLootFromToken"));
-    }
     if (game.user.actorId) {
       let itemId = $(event.currentTarget).parents(".item").attr("data-item-id");
       let quantity = Number($(event.currentTarget).parents(".item").attr("data-item-quantity"));
@@ -487,8 +483,10 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
       let d = new QuantityDialog((quantity) => {
         const packet = {
           type: "loot",
-          looterId: game.user.actorId,
-          tokenId: this.token.id,
+          userId: game.user._id,
+          actorId: game.user.actorId,
+          tokenId: this.token ? this.token.id : undefined,
+          targetActorId: this.token ? undefined : this.actor.id,
           itemId: itemId,
           quantity: quantity,
           processorId: targetGm.id
@@ -560,7 +558,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
         let total = 0
         let deleteList = []
         this.actor.items.forEach( item  => {
-            let itemCost = getItemCost(item.data)
+            let itemCost = LootSheetActions.getItemCost(item.data)
             if( item.data.data.subType !== "tradeGoods" ) {
               itemCost = Math.round(itemCost / 2)
             }
@@ -901,37 +899,38 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
   async _onDrop(event) {
     event.preventDefault();
     
+    // Try to extract the data
+    let data;
+    let extraData = {};
+    try {
+      data = JSON.parse(event.dataTransfer.getData('text/plain'));
+      if (data.type !== "Item") return;
+    } catch (err) {
+      return false;
+    }
+    
     if (game.user.isGM) {
-      super._onDrop(event)
+      let sourceActor = game.actors.get(data.actorId);
+      let targetActor = this.token ? canvas.tokens.get(this.token.id).actor : this.actor;
+      LootSheetActions.dropOrSellItem(game.user, targetActor, sourceActor, data.data._id)
     } 
     // users don't have the rights for the transaction => ask GM to do it
     else {
-      //console.log(this)
-      
-      // Try to extract the data
-      let data;
-      let extraData = {};
-      try {
-        data = JSON.parse(event.dataTransfer.getData('text/plain'));
-        if (data.type !== "Item") return;
-      } catch (err) {
-        return false;
-      }
-      
       let targetGm = null;
       game.users.forEach((u) => {
         if (u.isGM && u.active && u.viewedScene === game.user.viewedScene) {
           targetGm = u;
         }
       });
-
+      
       if(targetGm && data.actorId && data.data && data.data._id) {
         const packet = {
           type: "drop",
           userId: game.user._id,
           actorId: data.actorId,
           itemId: data.data._id,
-          tokenId: this.token.id,
+          tokenId: this.token ? this.token.id : undefined,
+          targetActorId: this.token ? undefined : this.actor.id,
           processorId: targetGm.id
         };
         game.socket.emit(LootSheetPf1NPC.SOCKET, packet);
@@ -943,7 +942,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
 
 
 /**
- * Register a hook to convert any spell created on an actor with the LootSheetPf1NPC sheet to a consumable scroll.
+ * Register a hook 
  */
 Hooks.on('preCreateOwnedItem', (actor, item, data) => {
 
@@ -956,7 +955,7 @@ Hooks.on('preCreateOwnedItem', (actor, item, data) => {
   // Check if Actor is an NPC
   if (actor.data.type === "character") return;
 
-  // If the actor is using the LootSheetPf1NPC then check in the item is a spell and if so update the name.
+  // If the actor is using the LootSheetPf1NPC then check in the item
   if ((actor.data.flags.core || {}).sheetClass === "PF1.LootSheetPf1NPC") {
 
     // retrieve source
@@ -985,8 +984,10 @@ Hooks.on('preCreateOwnedItem', (actor, item, data) => {
 
 });
 
+/**
+ * Register drop action on actor
+ */
 Hooks.on('renderActorDirectory', (app, html, data) => {
-  
   
   function giveItemTo(actorDestId, event) {
     event.preventDefault();
@@ -1011,12 +1012,6 @@ Hooks.on('renderActorDirectory', (app, html, data) => {
       return false;
     }
     
-    // items must be owned
-    if(!game.user.isGM && (data.actorId != game.user.data.character) ) {
-      ui.notifications.error(game.i18n.localize("ERROR.lsNotAutorizedToGive"));
-      return false;
-    }
-        
     let targetGm = null;
     game.users.forEach((u) => {
       if (u.isGM && u.active && u.viewedScene === game.user.viewedScene) {
@@ -1053,13 +1048,14 @@ Hooks.on('renderActorDirectory', (app, html, data) => {
     let d = new QuantityDialog((quantity) => {
     
       if( game.user.isGM ) {
-        lsGiveItem(data.actorId, actorDestId, data.data._id, quantity)
+        LootSheetActions.giveItem(game.user, data.actorId, actorDestId, data.data._id, quantity)
       } else {
         const packet = {
           type: "give",
-          giverId: data.actorId,
-          giverItemId: data.data._id,
-          receiverId: actorDestId,
+          userId: game.user._id,
+          actorId: data.actorId,
+          itemId: data.data._id,
+          targetActorId: actorDestId,
           processorId: targetGm.id,
           quantity: quantity
         };
@@ -1117,331 +1113,43 @@ Hooks.once("init", () => {
     type: Boolean
   });
 
-
-  function chatMessage(speaker, owner, message, item) {
-    if (game.settings.get("lootsheetnpcpf1", "buyChat")) {
-      if (item) {
-        message = `<div class="pf1 chat-card item-card" data-actor-id="${owner._id}" data-item-id="${item._id}">
-                    <header class="card-header flexrow">
-                        <img src="${item.img}" title="${item.showName}" width="36" height="36">
-                        <h3 class="item-name">${item.showName}</h3>
-                    </header>
-                    <div class="card-content"><p>${message}</p></div></div>`;
-      } else {
-        message = `<div class="pf1 chat-card item-card" data-actor-id="${owner._id}">
-                    <div class="card-content"><p>${message}</p></div></div>`;
-      }
-      ChatMessage.create({
-        user: game.user._id,
-        speaker: {
-          actor: speaker,
-          alias: speaker.name
-        },
-        content: message
-      });
-    }
-  }
-
-
-  function errorMessageToActor(target, message) {
-    game.socket.emit(LootSheetPf1NPC.SOCKET, {
-      type: "error",
-      targetId: target.id,
-      message: message
-    });
-  }
-
-  function moveItem(source, destination, itemId, quantity) {
-    //console.log("Loot Sheet | moveItem")
-    let item = source.getEmbeddedEntity("OwnedItem", itemId);
-    
-    if(!item) {
-      ui.notifications.warn(game.i18n.format("ERROR.lsInvalidMove", { actor: source.name }));
-      return null;
-    }
-    
-    if(!quantity) {
-      quantity = item.data.quantity
-    }
-    
-    // Move all items if we select more than the quantity.
-    if (item.data.quantity < quantity) {
-      quantity = item.data.quantity;
-    }
-
-    let newItem = duplicate(item);
-    const update = {
-      _id: itemId,
-      "data.quantity": item.data.quantity - quantity
-    };
-
-    if (update["data.quantity"] === 0) {
-      source.deleteEmbeddedEntity("OwnedItem", itemId);
-    } else {
-      source.updateEmbeddedEntity("OwnedItem", update);
-    }
-
-    newItem.data.quantity = quantity;
-    destination.createEmbeddedEntity("OwnedItem", newItem);
-    newItem.showName = getItemName(newItem)
-    newItem.showCost = getItemCost(newItem)
-    
-    return {
-      item: newItem,
-      quantity: quantity
-    };
-
-  }
-  
-  function moveCoins(source, destination, itemId, quantity) {
-    console.log("Loot Sheet | moveCoins")
-    
-    if(itemId.startsWith("wl_")) {
-      itemId = itemId.substring(3)
-      
-      // Move all items if we select more than the quantity.
-      let coins = source.data.data.altCurrency[itemId]
-      if (coins < quantity) {
-        quantity = coins;
-      }
-      
-      if (quantity == 0) return null;
-
-      const srcUpdate = { data: { altCurrency: { } } };
-      srcUpdate.data.altCurrency[itemId] = source.data.data.altCurrency[itemId] - quantity;
-      source.update(srcUpdate)
-      
-      const dstUpdate = { data: { altCurrency: { } } };
-      dstUpdate.data.altCurrency[itemId] = destination.data.data.altCurrency[itemId] + quantity;
-      destination.update(dstUpdate)
-    }
-    else {
-      // Move all items if we select more than the quantity.
-      let coins = source.data.data.currency[itemId]
-      if (coins < quantity) {
-        quantity = coins;
-      }
-      
-      if (quantity == 0) return null;
-
-      const srcUpdate = { data: { currency: { } } };
-      srcUpdate.data.currency[itemId] = source.data.data.currency[itemId] - quantity;
-      source.update(srcUpdate)
-      
-      const dstUpdate = { data: { currency: { } } };
-      dstUpdate.data.currency[itemId] = destination.data.data.currency[itemId] + quantity;
-      destination.update(dstUpdate)
-    }
-    
-    return {
-      quantity: quantity
-    };
-
-  }
-
-  async function lootItem(container, looter, itemId, quantity) {
-    console.log("Loot Sheet | lootItem")
-    
-    if (itemId.length == 2 || itemId.startsWith("wl_")) {
-      let moved = moveCoins(container, looter, itemId, quantity);
-
-      if (moved) {
-        chatMessage(
-          container, looter,
-          game.i18n.format("ls.chatLootCoins", { buyer: looter.name, quantity: moved.quantity, currency: game.i18n.localize("ls." + itemId) }));
-      }
-    }
-    else {
-      let moved = moveItem(container, looter, itemId, quantity);
-      if(!moved) return;
-
-      chatMessage(
-        container, looter,
-        game.i18n.format("ls.chatLoot", { buyer: looter.name, quantity: moved.quantity, name: moved.item.showName }),
-        moved.item);
-    }
-  }
-  
-  async function dropOrSellItem(container, giver, itemId) {
-    //console.log("Loot Sheet | Drop or sell item")
-    let moved = moveItem(giver, container, itemId);
-    if(!moved) return;
-    let messageKey = ""
-    let cost = Math.floor(moved.item.showCost)
-    
-    if(container.getFlag("lootsheetnpcpf1", "lootsheettype") === "Merchant") {
-      messageKey = "ls.chatSell"
-      let sellerFunds = duplicate(giver.data.data.currency)
-      if(sellerFunds && moved.item.showCost > 0) {
-        if( moved.item.data.subType !== "tradeGoods" ) {
-          cost = Math.round(cost / 2)
-        }
-        sellerFunds["gp"] += cost * moved.quantity
-        giver.update({ "data.currency": sellerFunds });
-        giver.update({ "data.currency": sellerFunds }); // 2x required or it will not be stored? WHY???
-      }
-    } else {
-      messageKey = "ls.chatDrop"
-    }
-  
-    chatMessage(
-      container, giver,
-      game.i18n.format(messageKey, { seller: giver.name, quantity: moved.quantity, price: cost * moved.quantity, item: moved.item.showName, container: container.name }), 
-      moved.item);
-  }
-  
-  function transaction(seller, buyer, itemId, quantity) {
-    console.log("Loot Sheet | Transaction")
-
-    let sellItem = seller.getEmbeddedEntity("OwnedItem", itemId);
-
-
-    // If the buyer attempts to buy more then what's in stock, buy all the stock.
-    if (sellItem.data.quantity < quantity) {
-      quantity = sellItem.data.quantity;
-    }
-
-    let sellerModifier = seller.getFlag("lootsheetnpcpf1", "priceModifier");
-    if (!sellerModifier) sellerModifier = 1.0;
-
-    let itemCost = getItemCost(sellItem)
-    itemCost = Math.round(itemCost * sellerModifier * 100) / 100;
-    itemCost *= quantity;
-    let buyerFunds = duplicate(buyer.data.data.currency);
-    const conversionRate = {
-      "pp": 10,
-      "gp": 1,
-      "sp": 0.1,
-      "cp": 0.01
-    };
-    let buyerFundsAsGold = 0;
-
-    for (let currency in buyerFunds) {
-      buyerFundsAsGold += buyerFunds[currency] * conversionRate[currency];
-    }
-
-    if (itemCost > buyerFundsAsGold) {
-      errorMessageToActor(buyer, game.i18n.localize("ERROR.lsNotEnougFunds"));
-      return;
-    }
-    const originalCost = itemCost;
-    
-    // Update buyer's gold
-    
-    // make sure that coins is a number (not a float)
-    while(!Number.isInteger(itemCost)) {
-      itemCost *= 10;
-      for (const key in conversionRate) {
-        conversionRate[key] *= 10
-      }
-    }
-    
-    const DEBUG = false;
-    if (DEBUG) console.log("Loot Sheet | Conversion rates: ");
-    if (DEBUG) console.log(conversionRate);
-    
-    // remove funds from lowest currency to highest
-    let remainingFond = 0
-    for (const currency of Object.keys(conversionRate).reverse()) {
-      //console.log("Rate: " + conversionRate[currency])
-      if(conversionRate[currency] < 1) {
-        const ratio = 1/conversionRate[currency]
-        const value = Math.min(itemCost, Math.floor(buyerFunds[currency] / ratio))
-        if (DEBUG) console.log("Loot Sheet | BuyerFunds " + currency + ": " + buyerFunds[currency])
-        if (DEBUG) console.log("Loot Sheet | Ratio: " + ratio)
-        if (DEBUG) console.log("Loot Sheet | Value: " + value)
-        itemCost -= value
-        buyerFunds[currency] -= value * ratio
-      } else {
-        const value = Math.min(itemCost, Math.floor(buyerFunds[currency] * conversionRate[currency]))
-        itemCost -= value
-        const lost = Math.ceil( value / conversionRate[currency] )
-        buyerFunds[currency] -= lost
-        remainingFond += lost * conversionRate[currency] - value
-        if (DEBUG) console.log("Loot Sheet | Value+: " + value)
-        if (DEBUG) console.log("Loot Sheet | Lost+: " + lost)
-        if (DEBUG) console.log("Loot Sheet | RemainingFond+: " + remainingFond)
-      }
-    }
-    
-    if(itemCost > 0) {
-      errorMessageToActor(buyer, game.i18n.localize("ERROR.lsCurrencyConversionFailed"));
-      return ui.notifications.error(game.i18n.localize("ERROR.lsCurrencyConversionFailed"));
-    }
-    
-    //console.log("RemainingFond: " + remainingFond)
-    
-    if(remainingFond > 0) {
-      for (const currency of Object.keys(conversionRate)) {
-        if (conversionRate[currency] <= remainingFond) {
-          buyerFunds[currency] += Math.floor(remainingFond / conversionRate[currency]);
-          remainingFond = remainingFond % conversionRate[currency];
-          if (DEBUG) console.log("Loot Sheet | buyerFunds " + currency + ": " + buyerFunds[currency]);
-          if (DEBUG) console.log("Loot Sheet | remainingFond: " + remainingFond);
-        }
-      }
-    }
-    
-    if(remainingFond > 0) {
-      errorMessageToActor(buyer, game.i18n.localize("ERROR.lsCurrencyConversionFailed"));
-      return ui.notifications.error(game.i18n.localize("ERROR.lsCurrencyConversionFailed"));
-    }
-    
-    if (DEBUG) console.log(buyerFunds)
-
-    // Update buyer's gold from the buyer.
-    buyer.update({
-      "data.currency": buyerFunds
-    });
-    let moved = moveItem(seller, buyer, itemId, quantity);
-
-    chatMessage(
-      seller, buyer,
-      game.i18n.format("ls.chatPurchase", { buyer: buyer.name, quantity: quantity, name: moved.item.showName, cost: originalCost }),
-      moved.item);
-  }
-
   /*******************************************
    *          SOCKET HANDLING!
    *******************************************/
   game.socket.on(LootSheetPf1NPC.SOCKET, data => {
     console.log("Loot Sheet | Socket Message: ", data);
     if (game.user.isGM && data.processorId === game.user.id) {
+      let user = game.users.get(data.userId);
+      console.log(user);
+      let sourceActor = game.actors.get(data.actorId);
+      let targetActor = data.tokenId ? canvas.tokens.get(data.tokenId).actor : game.actors.get(data.targetActorId);
+        
       if (data.type === "buy") {
-        let buyer = game.actors.get(data.buyerId);
-        let seller = canvas.tokens.get(data.tokenId);
-
-        if (buyer && seller && seller.actor) {
-          transaction(seller.actor, buyer, data.itemId, data.quantity);
-        } else if (!seller) {
-          errorMessageToActor(buyer, game.i18n.localize("ERROR.lsNoActiveGM"))
+        if (sourceActor && targetActor) {
+          LootSheetActions.transaction(user, targetActor, sourceActor, data.itemId, data.quantity);
+        } else if (!targetActor) {
+          LootSheetActions.errorMessageToActor(sourceActor, game.i18n.localize("ERROR.lsNoActiveGM"))
           ui.notifications.error(game.i18n.localize("ERROR.lsPurchaseAttempt"));
         }
       }
 
       else if (data.type === "loot") {
-        let looter = game.actors.get(data.looterId);
-        let container = canvas.tokens.get(data.tokenId);
-
-        if (looter && container && container.actor) {
-          lootItem(container.actor, looter, data.itemId, data.quantity);
-        } else if (!container) {
-          errorMessageToActor(looter, game.i18n.localize("ERROR.lsNoActiveGM"))
+        if (sourceActor && targetActor) {
+          LootSheetActions.lootItem(user, targetActor, sourceActor, data.itemId, data.quantity);
+        } else if (!targetActor) {
+          LootSheetActions.errorMessageToActor(sourceActor, game.i18n.localize("ERROR.lsNoActiveGM"))
           ui.notifications.error(game.i18n.localize("ERROR.lsLootAttempt"));
         }
       }
       
       else if (data.type === "drop") {
-        let giver = game.actors.get(data.actorId);
-        let container = canvas.tokens.get(data.tokenId);        
-        
-        if(giver && container) {
-          dropOrSellItem(container.actor, giver, data.itemId)
+        if(sourceActor && targetActor) {
+          LootSheetActions.dropOrSellItem(user, targetActor, sourceActor, data.itemId)
         }
       }
       
       else if (data.type === "give") {
-        lsGiveItem(data.giverId, data.receiverId, data.giverItemId, data.quantity);
+        LootSheetActions.giveItem(user, data.actorId, data.targetActorId, data.itemId, data.quantity);
       }
     }
     if (data.type === "error" && data.targetId === game.user.actorId) {
@@ -1458,74 +1166,3 @@ Hooks.once("init", () => {
 
 });
 
-
-/**
- * Global function to give something to somebody else
- */
-function lsGiveItem(giverId, receiverId, itemId, quantity) {
-  quantity = Number(quantity)  // convert to number (just in case)
-  
-  let giver = game.actors.get(giverId);
-  let receiver = game.actors.get(receiverId);
- 
-  let giverUser = null;
-    game.users.forEach((u) => {
-    if (u.character && u.character._id === giverId) {
-      giverUser = u;
-    }
-  });
-    
-  if(quantity <= 0) {
-    return;
-  }
-  
-  if (giver && receiver) {
-    const item = giver.getEmbeddedEntity("OwnedItem", itemId);
-    item.data.quantity = Number(item.data.quantity)  // convert to number (just in case)
-
-    if (item) {
-      if(quantity > item.data.quantity) {
-        quantity = item.data.quantity
-      }
-      if(item.data.quantity == quantity) {
-        giver.deleteEmbeddedEntity("OwnedItem", item._id);
-        receiver.createEmbeddedEntity("OwnedItem", item);
-      } else {
-        let remainingQuantity = item.data.quantity - quantity
-        item.data.quantity = quantity
-        receiver.createEmbeddedEntity("OwnedItem", item);
-        giver.updateEmbeddedEntity("OwnedItem", { _id: item._id, data: { quantity: remainingQuantity }});
-      }
-      console.log(`Loot Sheet | ${giver.name} gave ${item.name} to ${receiver.name}`)
-      
-      if(giverId != receiverId) {
-        let message = game.i18n.format("ls.chatGive", {giver: giver.data.name, receiver: receiver.data.name, quantity: quantity, item: item.name});
-        ChatMessage.create({
-          user: giverUser ? giverUser._id : game.user._id,
-          content: message
-        });
-      }
-    } else {
-      console.log("Loot Sheet | Give operation failed because item (giver) couldn't be found!");
-    }
-  } else {
-    console.log("Loot Sheet | Give operation failed because actors (giver or receiver) couldn't be found!");
-  }
-}
-
-
-/**
-  * Returns the unidentified name (if unidentified and specified) or the name
-  */
-function getItemName(item) {
-  if(!item) return ""
-  else return item.data.identified || !item.data.unidentified || !item.data.unidentified.name || item.data.unidentified.name.length == 0 ? item.name : item.data.unidentified.name
-}
-
-/**
-  * Returns the unidentified cost (if unidentified and specified) or the cost
-  */
-function getItemCost(item) {
-  if(!item) return 0
-  else return Number(item.data.identified || item.data.unidentified == null ? item.data.price : item.data.unidentified.price)
-}

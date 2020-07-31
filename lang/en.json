@@ -48,7 +48,7 @@
   "ls.chatPurchase": "{buyer} purchased {quantity} x {name} for {cost} gp.",
   "ls.chatSell": "{seller} sold {quantity} x {item} for {price} gp. to {container}",
   "ls.chatDrop": "{seller} dropped {quantity} x {item} into {container}",
-  "ls.chatGive": "{giver} gave {quantity} x {item} to {receiver}.",
+  "ls.chatGive": "{quantity} x {item} given/moved from {giver} to {receiver}.",
   
   "ls.permissionNoaccess": "None (cannot access sheet)",
   "ls.permissionLimited": "Limited (access to sheet but cannot do any action)",
