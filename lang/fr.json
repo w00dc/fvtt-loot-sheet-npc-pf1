@@ -125,5 +125,7 @@
   "ls.lootTitle": "S'approprier {item}",
   "ls.lootContent": "Êtes-vous sûr de vouloir vous approprier <em>{item}</em>?",
   "ls.buyTitle": "Achter {item}",
-  "ls.buyContent": "Êtes-vous sûr de vouloir acheter <em>{item}</em>?"
+  "ls.buyContent": "Êtes-vous sûr de vouloir acheter <em>{item}</em>?",
+  
+  "ls.convertToLoot": "Convertir en butin"
 }

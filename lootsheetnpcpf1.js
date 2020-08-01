@@ -1146,3 +1146,26 @@ Hooks.once("init", () => {
 
 });
 
+
+Hooks.on("getActorDirectoryEntryContext", (html, options) => {
+  options.push({
+    name: game.i18n.localize("ls.convertToLoot"),
+    icon: '<i class="fas fa-skull-crossbones"></i>',
+    callback: async function(li) {
+      const actor = game.actors.get(li.data("entityId"))
+      if(actor) { 
+        await actor.setFlag("core", "sheetClass", "PF1.LootSheetPf1NPC");
+        let permissions = duplicate(actor.data.permission)
+        game.users.forEach((u) => {
+          if (!u.isGM) { permissions[u.id] = 2 }
+        });
+        await actor.update( { permission: permissions }, {diff: false});
+      }
+    },
+    condition: li => {
+      const entity = game.actors.get(li.data("entityId"))
+      return game.user.isGM && entity && entity.data.type === "npc" && !(entity.sheet instanceof LootSheetPf1NPC);
+    },
+  });
+});
+

@@ -126,5 +126,7 @@
   "ls.lootTitle": "Loot {item}",
   "ls.lootContent": "Are you sure you want to loot <em>{item}</em>?",
   "ls.buyTitle": "Buy {item}",
-  "ls.buyContent": "Are you sure you want to buy <em>{item}</em>?"
+  "ls.buyContent": "Are you sure you want to buy <em>{item}</em>?",
+  
+  "ls.convertToLoot": "Convert to loot"
 }
