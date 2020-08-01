@@ -128,5 +128,6 @@
   "ls.buyTitle": "Buy {item}",
   "ls.buyContent": "Are you sure you want to buy <em>{item}</em>?",
   
-  "ls.convertToLoot": "Convert to loot"
+  "ls.convertToLoot": "Convert to loot",
+  "ls.convertToLootUnlinked": "Convert defeated (tokens) to loot"
 }

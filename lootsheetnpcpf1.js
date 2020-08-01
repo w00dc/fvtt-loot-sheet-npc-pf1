@@ -1163,8 +1163,34 @@ Hooks.on("getActorDirectoryEntryContext", (html, options) => {
       }
     },
     condition: li => {
-      const entity = game.actors.get(li.data("entityId"))
-      return game.user.isGM && entity && entity.data.type === "npc" && !(entity.sheet instanceof LootSheetPf1NPC);
+      const actor = game.actors.get(li.data("entityId"))
+      return game.user.isGM && actor && actor.data.type === "npc" && !(actor.sheet instanceof LootSheetPf1NPC) && actor.data.token.actorLink;
+    },
+  });
+  // Special case: actor is not linked => convert all defeated tokens!
+  options.push({
+    name: game.i18n.localize("ls.convertToLootUnlinked"),
+    icon: '<i class="fas fa-skull-crossbones"></i>',
+    callback: async function(li) {
+      const actor = game.actors.get(li.data("entityId"))
+      if(actor) { 
+        let tokens = game.scenes.active.data.tokens.filter(o => o.overlayEffect && o.actorId == actor.id)
+        tokens.forEach( async function(t) {
+          let actor = canvas.tokens.get(t._id).actor
+          if( !(actor.sheet instanceof LootSheetPf1NPC) ) {
+            await actor.setFlag("core", "sheetClass", "PF1.LootSheetPf1NPC");
+            let permissions = duplicate(actor.data.permission)
+            game.users.forEach((u) => {
+              if (!u.isGM) { permissions[u.id] = 2 }
+            });
+            await actor.update( { permission: permissions }, {diff: false});
+          }
+        });
+      }
+    },
+    condition: li => {
+      const actor = game.actors.get(li.data("entityId"))
+      return game.user.isGM && actor && actor.data.type === "npc" && !(actor.sheet instanceof LootSheetPf1NPC) && !actor.data.token.actorLink;
     },
   });
 });

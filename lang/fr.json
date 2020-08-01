@@ -127,5 +127,6 @@
   "ls.buyTitle": "Achter {item}",
   "ls.buyContent": "Êtes-vous sûr de vouloir acheter <em>{item}</em>?",
   
-  "ls.convertToLoot": "Convertir en butin"
+  "ls.convertToLoot": "Convertir en butin",
+  "ls.convertToLootUnlinked": "Convertir hors-combat (jetons) en butin"
 }
