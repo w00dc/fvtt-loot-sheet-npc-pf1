@@ -21,6 +21,7 @@
   "ERROR.lsCurrencyConversionFailed": "Échec de conversion de monnaie. Ça doit être un bogue!",
   "ERROR.lsNotAutorizedToAdd": "Vous n'êtes pas autorisé à ajouter des objets dont vous n'êtes pas le propriétaire!",
   "ERROR.lsInvalidType": "La feuille de butin n'accepte pas ce type d'élément!",
+  "ERROR.lsInvalidDrop": "Seuls les MJ peuvent déposer des objets depuis les compendiums!",
   "ERROR.lsNotAutorizedToGive": "Vous n'êtes pas autorisé à donner des objets dont vous n'êtes pas le propriétaire!",
   "ERROR.lsWhyGivingToYourself": "Pourquoi voudriez-vous donner cet objet à vous-même??",
   "ERROR.lsGiveInvalidType": "Vous ne pouvez pas donner ce type d'élément!",

@@ -21,6 +21,7 @@
   "ERROR.lsCurrencyConversionFailed": "Currency conversion failed. That must be a bug!",
   "ERROR.lsNotAutorizedToAdd": "You're not autorized to add items that you don't own!",
   "ERROR.lsInvalidType": "You cannot add this type of element to the loot sheet!",
+  "ERROR.lsInvalidDrop": "Only GMs can drop items from compendiums!",
   "ERROR.lsNotAutorizedToGive": "You're not autorized to give items that you don't own!",
   "ERROR.lsWhyGivingToYourself": "Why would you give that item to yourself??",
   "ERROR.lsGiveInvalidType": "You cannot give this type of element!",

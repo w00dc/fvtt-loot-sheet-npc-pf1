@@ -55,6 +55,7 @@ class QuantityDialog extends Dialog {
 
 class LootSheetPf1NPC extends ActorSheetPFNPC {
 
+  static MODULENAME = "lootsheetnpcpf1"
   static SOCKET = "module.lootsheetnpcpf1";
 
   get template() {
@@ -121,26 +122,26 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     //console.log("sheetData.isGM: ", sheetData.isGM);
     //console.log(this.actor);
 
-    let lootsheettype = await this.actor.getFlag("lootsheetnpcpf1", "lootsheettype");
-    if (!lootsheettype) await this.actor.setFlag("lootsheetnpcpf1", "lootsheettype", "Loot");
+    let lootsheettype = await this.actor.getFlag(LootSheetPf1NPC.MODULENAME, "lootsheettype");
+    if (!lootsheettype) await this.actor.setFlag(LootSheetPf1NPC.MODULENAME, "lootsheettype", "Loot");
     //console.log(`Loot Sheet | Loot sheet type = ${lootsheettype}`);
 
-    let rolltable = await this.actor.getFlag("lootsheetnpcpf1", "rolltable");
+    let rolltable = await this.actor.getFlag(LootSheetPf1NPC.MODULENAME, "rolltable");
     //console.log(`Loot Sheet | Rolltable = ${rolltable}`);
 
     
     let priceModifier = 1.0;
     if (lootsheettype === "Merchant") {
-      priceModifier = await this.actor.getFlag("lootsheetnpcpf1", "priceModifier");
-      if (!priceModifier) await this.actor.setFlag("lootsheetnpcpf1", "priceModifier", 1.0);
-      priceModifier = await this.actor.getFlag("lootsheetnpcpf1", "priceModifier");
+      priceModifier = await this.actor.getFlag(LootSheetPf1NPC.MODULENAME, "priceModifier");
+      if (!priceModifier) await this.actor.setFlag(LootSheetPf1NPC.MODULENAME, "priceModifier", 1.0);
+      priceModifier = await this.actor.getFlag(LootSheetPf1NPC.MODULENAME, "priceModifier");
     }
     
     let totalItems = 0
     let totalWeight = 0
     let totalPrice = 0
-    let maxCapacity = await this.actor.getFlag("lootsheetnpcpf1", "maxCapacity") || 0;
-    let maxLoad = await this.actor.getFlag("lootsheetnpcpf1", "maxLoad") || 0;
+    let maxCapacity = await this.actor.getFlag(LootSheetPf1NPC.MODULENAME, "maxCapacity") || 0;
+    let maxLoad = await this.actor.getFlag(LootSheetPf1NPC.MODULENAME, "maxLoad") || 0;
     
     Object.keys(sheetData.actor.features).forEach( f => sheetData.actor.features[f].items.forEach( i => {  
       totalItems += i.data.quantity
@@ -177,8 +178,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     //console.log("Loot Sheet | activateListeners")
     super.activateListeners(html);
     
-    const moduleNamespace = "lootsheetnpcpf1";
-    const dragEnabled = await this.actor.getFlag(moduleNamespace, "dragEnabled");
+    const dragEnabled = await this.actor.getFlag(LootSheetPf1NPC.MODULENAME, "dragEnabled");
     if(!dragEnabled) {    
       // Remove dragging capability
       let handler = ev => this._onDragItemStart(ev);
@@ -227,9 +227,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
       return;
     }
     
-    const moduleNamespace = "lootsheetnpcpf1";
     const expectedKeys = ["rolltable", "shopQty", "itemQty"];
-
     let targetKey = event.target.name.split('.')[3];
 
     if (expectedKeys.indexOf(targetKey) === -1) {
@@ -238,9 +236,9 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     }
 
     if (event.target.value) {
-      await this.actor.setFlag(moduleNamespace, targetKey, event.target.value);
+      await this.actor.setFlag(LootSheetPf1NPC.MODULENAME, targetKey, event.target.value);
     } else {
-      await this.actor.unsetFlag(moduleNamespace, targetKey, event.target.value);
+      await this.actor.unsetFlag(LootSheetPf1NPC.MODULENAME, targetKey, event.target.value);
     }
   }
   
@@ -277,10 +275,9 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     }
     
     console.log(this.actor)
-    const moduleNamespace = "lootsheetnpcpf1";
-    const rolltableName = await this.actor.getFlag(moduleNamespace, "rolltable");
-    const shopQtyFormula = await this.actor.getFlag(moduleNamespace, "shopQty") || "1";
-    const itemQtyFormula = await this.actor.getFlag(moduleNamespace, "itemQty") || "1";
+    const rolltableName = await this.actor.getFlag(LootSheetPf1NPC.MODULENAME, "rolltable");
+    const shopQtyFormula = await this.actor.getFlag(LootSheetPf1NPC.MODULENAME, "shopQty") || "1";
+    const itemQtyFormula = await this.actor.getFlag(LootSheetPf1NPC.MODULENAME, "itemQty") || "1";
     console.log(itemQtyFormula)
 
     if (!rolltableName || rolltableName.length == 0) {
@@ -293,7 +290,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
       return ui.notifications.error(game.i18n.format("ERROR.lsNoRollableTableFound", {name: rolltableName}));
     }
 
-    let clearInventory = game.settings.get("lootsheetnpcpf1", "clearInventory");
+    let clearInventory = game.settings.get(LootSheetPf1NPC.MODULENAME, "clearInventory");
 
     if (clearInventory) {
 
@@ -332,7 +329,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
       let itemQtyRoll = new Roll(itemQtyFormula);
       itemQtyRoll.roll();
       console.log(`Loot Sheet | Adding ${itemQtyRoll.result} x ${newItem.name}`)
-      newItem.data.data.quantity = itemQtyRoll.result;
+      newItem.data.data.quantity = Number(itemQtyRoll.result);
       console.log(newItem)
 
       await this.actor.createEmbeddedEntity("OwnedItem", newItem);
@@ -428,6 +425,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
       let d = new QuantityDialog((quantity) => {
         const packet = {
           type: "buy",
+          userId: game.user._id,
           actorId: game.user.actorId,
           tokenId: this.token ? this.token.id : undefined,
           targetActorId: this.token ? undefined : this.actor.id,
@@ -511,7 +509,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     event.preventDefault();
     //console.log("Loot Sheet | _priceModifier")
 
-    let priceModifier = await this.actor.getFlag("lootsheetnpcpf1", "priceModifier");
+    let priceModifier = await this.actor.getFlag(LootSheetPf1NPC.MODULENAME, "priceModifier");
     if (!priceModifier) priceModifier = 1.0;
 
     priceModifier = Math.round(priceModifier * 100);
@@ -524,7 +522,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
           one: {
             icon: '<i class="fas fa-check"></i>',
             label: game.i18n.localize("ls.update"),
-            callback: () => this.actor.setFlag("lootsheetnpcpf1", "priceModifier", document.getElementById("price-modifier-percent").value / 100)
+            callback: () => this.actor.setFlag(LootSheetPf1NPC.MODULENAME, "priceModifier", document.getElementById("price-modifier-percent").value / 100)
           },
           two: {
             icon: '<i class="fas fa-times"></i>',
@@ -908,8 +906,16 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     } catch (err) {
       return false;
     }
-    
-    if (game.user.isGM) {
+
+    // Item is from compendium
+    if(!data.data) {
+      if (game.user.isGM) { super._onDrop(event) }
+      else {
+        ui.notifications.error(game.i18n.localize("ERROR.lsInvalidDrop"));
+      }
+    }
+    // Item from an actor
+    else if (game.user.isGM) {
       let sourceActor = game.actors.get(data.actorId);
       let targetActor = this.token ? canvas.tokens.get(this.token.id).actor : this.actor;
       LootSheetActions.dropOrSellItem(game.user, targetActor, sourceActor, data.data._id)
@@ -946,41 +952,16 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
  */
 Hooks.on('preCreateOwnedItem', (actor, item, data) => {
 
-  //console.log("Loot Sheet | actor", actor);
-  //console.log("Loot Sheet | item", item);
-  //console.log("Loot Sheet | data", data);
-
   if (!actor) throw new Error(`Parent Actor ${actor._id} not found`);
-
-  // Check if Actor is an NPC
-  if (actor.data.type === "character") return;
-
-  // If the actor is using the LootSheetPf1NPC then check in the item
-  if ((actor.data.flags.core || {}).sheetClass === "PF1.LootSheetPf1NPC") {
-
-    // retrieve source
-    let source = null;
-    game.actors.forEach( function(a) {
-      const entity = a.getEmbeddedEntity("OwnedItem", item._id);
-      if (entity) {
-        //console.log(`Entity ${item._id} found in actor ${a.name}`)
-        source = a
-      }
-    });
-    
-    // user may not fill loot with items that are not attached to his actor
-    if(!game.user.isGM && (!source || source._id != game.user.actorId) ) {
-      ui.notifications.error(game.i18n.localize("ERROR.lsNotAutorizedToAdd"));
-      return false;
-    }
-    
+  
+  // If the target actor is using the LootSheetPf1NPC then check in the item
+  if (actor.sheet instanceof LootSheetPf1NPC) {
     // validate the type of item to be "moved" or "added"
     if(!["weapon","equipment","consumable","loot"].includes(item.type)) {
       ui.notifications.error(game.i18n.localize("ERROR.lsInvalidType"));
       return false;
     }
-    
-  } else return;
+  }
 
 });
 
@@ -1086,7 +1067,7 @@ Hooks.once("init", () => {
     return options.inverse(this);
   });
 
-  game.settings.register("lootsheetnpcpf1", "changeScrollIcon", {
+  game.settings.register(LootSheetPf1NPC.MODULENAME, "changeScrollIcon", {
     name: game.i18n.localize("SETTINGS.lsChangeIconForSpellScrollsTitle"), 
     hint: game.i18n.localize("SETTINGS.lsChangeIconForSpellScrollsHint"), 
     scope: "world",
@@ -1095,7 +1076,7 @@ Hooks.once("init", () => {
     type: Boolean
   });
 
-  game.settings.register("lootsheetnpcpf1", "buyChat", {
+  game.settings.register(LootSheetPf1NPC.MODULENAME, "buyChat", {
     name: game.i18n.localize("SETTINGS.lsPurchaseChatMessageTitle"),
     hint: game.i18n.localize("SETTINGS.lsPurchaseChatMessageHint"),
     scope: "world",
@@ -1104,7 +1085,7 @@ Hooks.once("init", () => {
     type: Boolean
   });
 
-  game.settings.register("lootsheetnpcpf1", "clearInventory", {
+  game.settings.register(LootSheetPf1NPC.MODULENAME, "clearInventory", {
     name: game.i18n.localize("SETTINGS.lsClearInventoryTitle"),
     hint: game.i18n.localize("SETTINGS.lsClearInventoryHint"),
     scope: "world",
@@ -1120,7 +1101,6 @@ Hooks.once("init", () => {
     console.log("Loot Sheet | Socket Message: ", data);
     if (game.user.isGM && data.processorId === game.user.id) {
       let user = game.users.get(data.userId);
-      console.log(user);
       let sourceActor = game.actors.get(data.actorId);
       let targetActor = data.tokenId ? canvas.tokens.get(data.tokenId).actor : game.actors.get(data.targetActorId);
         

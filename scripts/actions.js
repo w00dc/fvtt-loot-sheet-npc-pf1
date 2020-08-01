@@ -35,7 +35,7 @@ export class LootSheetActions {
    * Sends a error message to the target user
    */
   static errorMessageToActor(target, message) {
-    game.socket.emit(LootSheetPf1NPC.SOCKET, {
+    game.socket.emit("module.lootsheetnpcpf1", {
       type: "error",
       targetId: target.id,
       message: message
@@ -51,6 +51,7 @@ export class LootSheetActions {
     
     if(!item) {
       ui.notifications.warn(game.i18n.format("ERROR.lsInvalidMove", { actor: source.name }));
+      console.log(source, destination, itemId)
       return null;
     }
     
@@ -303,7 +304,7 @@ export class LootSheetActions {
 
     if(moved) {
       LootSheetActions.chatMessage(
-        speaker, seller, buyer,
+        speaker, buyer,
         game.i18n.format("ls.chatPurchase", { buyer: buyer.name, quantity: quantity, name: moved.item.showName, cost: originalCost }),
         moved.item);
     }
