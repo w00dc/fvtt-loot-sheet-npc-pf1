@@ -54,6 +54,7 @@
   "ls.permissionNoaccess": "None (cannot access sheet)",
   "ls.permissionLimited": "Limited (access to sheet but cannot do any action)",
   "ls.permissionObserver": "Observer (can loot/buy items and coins)",
+  "ls.batchUpdate": "All players",
   
   "ls.priceModifierTitle": "Price Modifier",
   "ls.priceModifierTooltip": "This uses a percentage factor where 100% is the current price, 0% is 0, and 200% is double the price.",

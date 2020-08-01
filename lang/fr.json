@@ -54,6 +54,7 @@
   "ls.permissionNoaccess": "Aucun (ne peut accéder au butin)",
   "ls.permissionLimited": "Limité (peut accéder à la feuille mais ne peut faire aucune action)",
   "ls.permissionObserver": "Observateur (peut accéder acheter/s'approprier des objets et des pièces)",
+  "ls.batchUpdate": "Tous les joueurs",
   
   "ls.priceModifierTitle": "Modificateur de prix",
   "ls.priceModifierTooltip": "Utilisation d'un facteur de prix, 100% set le prix normal, 0% est 0, et 200% signifie un prix doublé.",

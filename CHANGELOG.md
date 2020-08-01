@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] - 2019-08-01
+### Added
+- Batch update permissions for all players
+- Toggle item visibility in loot
+- Convert to loot (unlinked actors)
+### Fixed
+- Some options and money not visible right after switching to loot sheet 
+
 ## [1.5.0] - 2019-08-01
 ### Added
 - Convert to loot (context menu)

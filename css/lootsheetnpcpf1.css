@@ -216,3 +216,15 @@ input#quantity:focus {
   height: 530px;
   overflow-y: scroll;
 }
+
+.loot-sheet-npc .batch-update {
+  padding: 5px;
+}
+
+.loot-sheet-npc .batch-update a {
+  margin-left: 10px;
+}
+
+.loot-sheet-npc .fa-eye-slash {
+  color: darkred;
+}

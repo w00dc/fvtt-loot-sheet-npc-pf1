@@ -123,7 +123,10 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     //console.log(this.actor);
 
     let lootsheettype = await this.actor.getFlag(LootSheetPf1NPC.MODULENAME, "lootsheettype");
-    if (!lootsheettype) await this.actor.setFlag(LootSheetPf1NPC.MODULENAME, "lootsheettype", "Loot");
+    if (!lootsheettype) {
+      lootsheettype = "Loot"
+      await this.actor.setFlag(LootSheetPf1NPC.MODULENAME, "lootsheettype", lootsheettype);
+    }
     //console.log(`Loot Sheet | Loot sheet type = ${lootsheettype}`);
 
     let rolltable = await this.actor.getFlag(LootSheetPf1NPC.MODULENAME, "rolltable");
@@ -193,6 +196,9 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
       // Toggle Permissions
       html.find('.permission-proficiency').click(ev => this._onCyclePermissionProficiency(ev));
 
+      // Toggle Permissions (batch)
+      html.find('.permission-batch').click(ev => this._onBatchPermissionChange(ev));
+      
       // Split Coins
       html.find('.split-coins').click(ev => this._distributeCoins(ev));
 
@@ -211,6 +217,9 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
 
     // Loot Item
     html.find('.item-loot').click(ev => this._lootItem(ev));
+    
+    // Toggle Visibility
+    html.find('.item-visibility').click(ev => this._toggleVisibility(ev));
   }
 
   /* -------------------------------------------- */
@@ -537,6 +546,28 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
 
   }
   
+  /* -------------------------------------------- */
+
+  /**
+   * Handle buy item
+   * @private
+   */
+  _toggleVisibility(event) {
+    event.preventDefault();
+    let itemId = $(event.currentTarget).parents(".item").attr("data-item-id");
+    let item = this.actor.getOwnedItem(itemId);
+    if(item) {
+      console.log(item)
+      if(!item.getFlag(LootSheetPf1NPC.MODULENAME, "secret")) {
+        item.setFlag(LootSheetPf1NPC.MODULENAME, "secret", true);
+      } else {
+        item.unsetFlag(LootSheetPf1NPC.MODULENAME, "secret");
+      }
+    }
+  }
+  
+  /* -------------------------------------------- */
+  
   /**
    * Handle conversion to loot. This function converts (and removes) all items
    * on the Loot Sheet into coins. Items are sold according to the normal rule
@@ -709,6 +740,17 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     this._onSubmit(event);
   }
 
+  
+  _onBatchPermissionChange(event) {
+    event.preventDefault();
+    let newLevel = Number($(event.currentTarget).attr("data-perm"))
+    let permissions = duplicate(this.actor.data.permission)
+    game.users.forEach((u) => {
+      if (!u.isGM) { permissions[u.id] = newLevel }
+    });
+    this.actor.update( { permission: permissions }, {diff: false});
+    this._onSubmit(event);
+  }
 
   /* -------------------------------------------- */
 
@@ -746,6 +788,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     actorData.actor.visible = this.actor.visible
     
     if (!this.actor.visible) {
+      actorData.actor.features = features;
       return;
     }
 
@@ -756,6 +799,10 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
       i.img = i.img || DEFAULT_TOKEN;
       i.showPrice = this.getLootPrice(i)
       i.showName = this.getLootName(i)
+      
+      if (!game.user.isGM && i.flags.lootsheetnpcpf1 && i.flags.lootsheetnpcpf1.secret) {
+        continue;
+      }
       
       // Features
       if (i.type === "weapon") features.weapons.items.push(i);
