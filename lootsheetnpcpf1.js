@@ -108,7 +108,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
   }
 
   async getData() {
-    const sheetData = super.getData();
+    const sheetData = await super.getData();
 
     // Prepare GM Settings
     this._prepareGMSettings(sheetData.actor);
