@@ -71,6 +71,10 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     Handlebars.registerHelper('lootsheetprice', function(basePrice, modifier) {
       return Math.round(basePrice * modifier * 100) / 100;
     });
+    
+    Handlebars.registerHelper('lootsheetname', function(name, quantity) {
+      return quantity > 1 ? `(${quantity}) ${name}` : name;
+    });
 
     const path = "systems/pf1/templates/actors/";
     return "modules/lootsheetnpcpf1/template/npc-sheet.html";
@@ -147,9 +151,14 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     let maxLoad = await this.actor.getFlag(LootSheetPf1NPC.MODULENAME, "maxLoad") || 0;
     
     Object.keys(sheetData.actor.features).forEach( f => sheetData.actor.features[f].items.forEach( i => {  
-      totalItems += i.data.quantity
-      totalWeight += i.data.quantity * i.data.weight
-      totalPrice += i.data.quantity * LootSheetActions.getItemCost(i)
+      // specify if empty
+      const itemQuantity = getProperty(i, "data.quantity") != null ? getProperty(i, "data.quantity") : 1;
+      const itemCharges = getProperty(i, "data.uses.value") != null ? getProperty(i, "data.uses.value") : 1;
+      i.empty = itemQuantity <= 0 || (i.isCharged && itemCharges <= 0);
+
+      totalItems += itemQuantity
+      totalWeight += itemQuantity * i.data.weightConverted
+      totalPrice += itemQuantity * LootSheetActions.getItemCost(i)
     }));
 
     sheetData.lootsheettype = lootsheettype;
@@ -164,6 +173,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     sheetData.maxWeight = maxLoad > 0 ? " / " + maxLoad : ""
     sheetData.weightWarning = maxLoad <= 0 || maxLoad >= totalWeight ? "" : "warn"
     sheetData.totalPrice = totalPrice
+    sheetData.weightUnit = game.settings.get("pf1", "units") == "metric" ? game.i18n.localize("PF1.Kgs") : game.i18n.localize("PF1.Lbs")
     
     // Return data for rendering
     return sheetData;

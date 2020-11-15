@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.0] - 2020-11-15
+### Changed
+- Look-and-feel adapted based on latest PF1 system
+### Added
+- New actions: identified, add/remove
+- New column: weight
+
 ## [1.6.1] - 2020-10-09
 ### Fixed
 - Fix for PF1 system 0.7.4+
