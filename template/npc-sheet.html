@@ -118,7 +118,7 @@
                         <a class="item-control item-identify"><span>{{{item.labels.identified}}}</span></a>
                       </div>
                       {{/if}}
-                      <div class="item-detail item-weight"><span>{{ item.data.weightConverted }} {{ ../../weightUnit }}</span></div>
+                      <div class="item-detail item-weight"><span>{{ lootsheetweight item.data.quantity item.data.weightConverted }} {{ ../../weightUnit }}</span></div>
                       <div class="item-detail item-weight"><span>{{ lootsheetprice item.showPrice ../../priceModifier }}<span></div>
                       <div class="item-controls">
                         {{#ifeq ../../lootsheettype "Loot"}}

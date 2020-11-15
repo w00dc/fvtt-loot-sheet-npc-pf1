@@ -72,6 +72,10 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
       return Math.round(basePrice * modifier * 100) / 100;
     });
     
+    Handlebars.registerHelper('lootsheetweight', function(baseWeight, count) {
+      return baseWeight * count;
+    });
+    
     Handlebars.registerHelper('lootsheetname', function(name, quantity) {
       return quantity > 1 ? `(${quantity}) ${name}` : name;
     });
