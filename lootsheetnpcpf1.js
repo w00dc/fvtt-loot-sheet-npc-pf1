@@ -1238,16 +1238,20 @@ Hooks.on("getActorDirectoryEntryContext", (html, options) => {
     callback: async function(li) {
       const actor = game.actors.get(li.data("entityId"))
       if(actor) { 
-        let tokens = game.scenes.active.data.tokens.filter(o => o.overlayEffect && o.actorId == actor.id)
+        let tokens = game.scenes.active.data.tokens.filter(o => o.actorId == actor.id)
         tokens.forEach( async function(t) {
-          let actor = canvas.tokens.get(t._id).actor
-          if( !(actor.sheet instanceof LootSheetPf1NPC) ) {
-            await actor.setFlag("core", "sheetClass", "PF1.LootSheetPf1NPC");
-            let permissions = duplicate(actor.data.permission)
-            game.users.forEach((u) => {
-              if (!u.isGM) { permissions[u.id] = 2 }
-            });
-            await actor.update( { permission: permissions }, {diff: false});
+          const effects = getProperty( t.actorData, "effects" )
+          // to be considered dead, a token must have the "dead" overlay effect (either from combat tracker or directly)
+          if( effects && effects.filter( e => getProperty(e, "flags.core.statusId" ) == "dead" ).length > 0) {
+            let actor = canvas.tokens.get(t._id).actor
+            if( !(actor.sheet instanceof LootSheetPf1NPC) ) {
+              await actor.setFlag("core", "sheetClass", "PF1.LootSheetPf1NPC");
+              let permissions = duplicate(actor.data.permission)
+              game.users.forEach((u) => {
+                if (!u.isGM) { permissions[u.id] = 2 }
+              });
+              await actor.update( { permission: permissions }, {diff: false});
+            }
           }
         });
       }
