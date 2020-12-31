@@ -601,16 +601,19 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
         let total = 0
         let deleteList = []
         this.actor.items.forEach( item  => {
-            let itemCost = LootSheetActions.getItemCost(item.data)
-            if( item.data.data.subType !== "tradeGoods" ) {
-              itemCost = Math.round(itemCost / 2)
-            }
-            total += itemCost * item.data.data.quantity
-            deleteList.push(item._id)
+           if (["weapon", "equipment", "consumable", "tool", "loot"].indexOf(item.type) >= 0) {
+             let itemCost = LootSheetActions.getItemCost(item.data)
+             if( item.data.data.subType !== "tradeGoods" ) {
+               itemCost = Math.round(itemCost / 2)
+             }
+             total += itemCost * item.data.data.quantity
+             deleteList.push(item._id)
+           }
           }
         );
         
         let funds = duplicate(this.actor.data.data.currency)
+        funds.gp = Number(funds.gp)
         funds.gp += Math.round(total)
         
         this.actor.update({ "data.currency": funds });
