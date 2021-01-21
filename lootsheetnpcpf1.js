@@ -1158,6 +1158,15 @@ Hooks.once("init", () => {
     type: Boolean
   });
 
+  game.settings.register(LootSheetPf1NPC.MODULENAME, "removeEmptyStacks", {
+    name: game.i18n.localize("SETTINGS.lsRemoveEmptyStackTitle"),
+    hint: game.i18n.localize("SETTINGS.lsRemoveEmptyStackHint"),
+    scope: "world",
+    config: true,
+    default: true,
+    type: Boolean
+  });
+
   /*******************************************
    *          SOCKET HANDLING!
    *******************************************/

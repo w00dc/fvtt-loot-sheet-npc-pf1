@@ -5,6 +5,8 @@
   "SETTINGS.lsClearInventoryHint": "If enabled, all existing items will be removed from the Loot Sheet before adding new items from the rollable table. If disabled, existing items will remain.",
   "SETTINGS.lsChangeIconForSpellScrollsTitle": "Change icon for Spell Scrolls?",
   "SETTINGS.lsChangeIconForSpellScrollsHint": "Changes the icon for spell scrolls to a scroll icon. If left unchecked, retains the spell's icon.",
+  "SETTINGS.lsRemoveEmptyStackTitle": "Delete empty stacks",
+  "SETTINGS.lsRemoveEmptyStackHint": "Deletes items that have quantity set to 0. If disabled, the items will remain with quantity of 0.",
   
   "ERROR.lsItemInvalidQuantity": "Item quantity invalid.",
   "ERROR.lsChangingSettingsFor": "Error changing settings for \"{name}\".",
