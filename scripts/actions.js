@@ -87,7 +87,21 @@ export class LootSheetActions {
     };
 
   }
-  
+
+  static spreadFunds(totalGP, funds) {
+    console.log(`WIP - spreading ${totalGP}`);
+    const gpBare = Math.floor(totalGP),
+      spLeftOver = (totalGP - gpBare) * 10,
+      spBare = Math.floor(spLeftOver),
+      cpLeftOver = (spLeftOver - spBare) * 10,
+      cpBare = Math.floor(cpLeftOver);
+    funds.gp += gpBare;
+    funds.sp += spBare;
+    funds.cp += cpBare;
+    console.log(`WIP - spread to ${funds.gp} gp + ${funds.sp} sp + ${funds.cp} cp`);
+    return funds;
+  }
+
   /**
    * Moves coins from a source actor to a destination actor
    */
@@ -166,23 +180,23 @@ export class LootSheetActions {
   /**
    * A giver (source actor) drops or sells a item to a container (target actor)
    */
-  static dropOrSellItem(speaker, container, giver, itemId) {
+  static async dropOrSellItem(speaker, container, giver, itemId) {
     //console.log("Loot Sheet | Drop or sell item")
     let moved = LootSheetActions.moveItem(giver, container, itemId);
     if(!moved) return;
     let messageKey = ""
-    let cost = Math.floor(moved.item.showCost)
-    
+    let cost = moved.item.showCost;
+
     if(container.getFlag("lootsheetnpcpf1", "lootsheettype") === "Merchant") {
       messageKey = "ls.chatSell"
       let sellerFunds = duplicate(giver.data.data.currency)
       if(sellerFunds && moved.item.showCost > 0) {
-        if( moved.item.data.subType !== "tradeGoods" ) {
-          cost = Math.round(cost / 2)
-        }
-        sellerFunds["gp"] += cost * moved.quantity
-        giver.update({ "data.currency": sellerFunds });
-        giver.update({ "data.currency": sellerFunds }); // 2x required or it will not be stored? WHY???
+        if( moved.item.data.subType !== "tradeGoods" )
+          cost = cost / 2;
+
+        const totalGP = cost * moved.quantity;
+        sellerFunds = LootSheetActions.spreadFunds(totalGP, sellerFunds);
+        await giver.update({ "data.currency": sellerFunds });
       }
     } else {
       messageKey = "ls.chatDrop"
@@ -212,7 +226,7 @@ export class LootSheetActions {
     if (!sellerModifier) sellerModifier = 1.0;
 
     let itemCost = LootSheetActions.getItemCost(sellItem)
-    itemCost = Math.round(itemCost * sellerModifier * 100) / 100;
+    itemCost = itemCost * sellerModifier;
     itemCost *= quantity;
     let buyerFunds = duplicate(buyer.data.data.currency);
     const conversionRate = {
@@ -224,7 +238,7 @@ export class LootSheetActions {
     let buyerFundsAsGold = 0;
 
     for (let currency in buyerFunds) {
-      buyerFundsAsGold += buyerFunds[currency] * conversionRate[currency];
+      buyerFundsAsGold += Math.floor(buyerFunds[currency] * conversionRate[currency]);
     }
 
     if (itemCost > buyerFundsAsGold) {

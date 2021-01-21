@@ -597,27 +597,24 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     Dialog.confirm({
       title: game.i18n.localize("ls.convertLootTitle"),
       content: game.i18n.localize("ls.convertLootMessage"),
-      yes: () => {
-        let total = 0
+      yes: async () => {
+        let totalGP = 0
         let deleteList = []
         this.actor.items.forEach( item  => {
            if (["weapon", "equipment", "consumable", "tool", "loot"].indexOf(item.type) >= 0) {
              let itemCost = LootSheetActions.getItemCost(item.data)
-             if( item.data.data.subType !== "tradeGoods" ) {
-               itemCost = Math.round(itemCost / 2)
-             }
-             total += itemCost * item.data.data.quantity
+             if( item.data.data.subType !== "tradeGoods" )
+               itemCost = itemCost / 2;
+             totalGP += itemCost * item.data.data.quantity
              deleteList.push(item._id)
            }
           }
         );
-        
-        let funds = duplicate(this.actor.data.data.currency)
-        funds.gp = Number(funds.gp)
-        funds.gp += Math.round(total)
-        
-        this.actor.update({ "data.currency": funds });
-        this.actor.deleteEmbeddedEntity("OwnedItem", deleteList)
+
+        let funds = LootSheetActions.spreadFunds(totalGP, duplicate(this.actor.data.data.currency));
+
+        await this.actor.update({ "data.currency": funds });
+        await this.actor.deleteEmbeddedEntity("OwnedItem", deleteList)
       },
       no: () => {}
     });
@@ -1262,4 +1259,3 @@ Hooks.on("getActorDirectoryEntryContext", (html, options) => {
     },
   });
 });
-
