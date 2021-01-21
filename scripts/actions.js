@@ -89,7 +89,6 @@ export class LootSheetActions {
   }
 
   static spreadFunds(totalGP, funds) {
-    console.log(`WIP - spreading ${totalGP}`);
     const gpBare = Math.floor(totalGP),
       spLeftOver = (totalGP - gpBare) * 10,
       spBare = Math.floor(spLeftOver),
@@ -98,7 +97,6 @@ export class LootSheetActions {
     funds.gp += gpBare;
     funds.sp += spBare;
     funds.cp += cpBare;
-    console.log(`WIP - spread to ${funds.gp} gp + ${funds.sp} sp + ${funds.cp} cp`);
     return funds;
   }
 
