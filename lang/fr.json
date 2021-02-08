@@ -5,7 +5,9 @@
   "SETTINGS.lsClearInventoryHint": "Si activé, les objets seront retirés de la feuille de butin avant d'en ajouter d'autres à partir de la table aléatoire. Sinon, les objets seront conservés.",
   "SETTINGS.lsChangeIconForSpellScrollsTitle": "Changer l'icône des parchemins?",
   "SETTINGS.lsChangeIconForSpellScrollsHint": "Si activé, l'icône du sort sera remplacée par celle d'un parchemin. Sinon, l'icône du sort sera préservée.",
-  
+  "SETTINGS.lsRemoveEmptyStackTitle": "Supprimer les piles vides",
+  "SETTINGS.lsRemoveEmptyStackHint": "Supprimer les objets lorsque la quantité est 0. Si désactivé, conserve les objets avec une quantité de 0.",
+
   "ERROR.lsItemInvalidQuantity": "Quantité invalide.",
   "ERROR.lsChangingSettingsFor": "Erreur lors du changement de configuration \"{name}\".",
   "ERROR.lsNoRollableTableFound": "Aucune table aléatoire trouvée avec le nom \"{name}\".",

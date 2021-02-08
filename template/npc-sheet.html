@@ -124,7 +124,9 @@
                         {{#ifeq ../../lootsheettype "Loot"}}
                           {{#if ../../canAct}}
                             {{#unless ../../isGM}}
-                            <a class="item-control item-loot" title="{{localize "ls.lootItem"}}"><i class="fas fa-gem"></i></a>
+                              {{#if data.quantity}}
+                              <a class="item-control item-loot" title="{{localize "ls.lootItem"}}"><i class="fas fa-gem"></i></a>
+                              {{/if}}
                             {{/unless}}
                           {{/if}}
                         {{/ifeq}}
@@ -132,7 +134,9 @@
                         {{#ifeq ../../lootsheettype "Merchant"}}
                           {{#if ../../canAct}}
                             {{#unless ../../isGM}}
-                            <a class="item-control item-buy" title="{{localize "ls.buyItem"}}"><i class="fas fa-dollar-sign"></i></a>
+                              {{#if data.quantity}}
+                              <a class="item-control item-buy" title="{{localize "ls.buyItem"}}"><i class="fas fa-dollar-sign"></i></a>
+                              {{/if}}
                             {{/unless}}
                           {{/if}} 
                         {{/ifeq}} 
