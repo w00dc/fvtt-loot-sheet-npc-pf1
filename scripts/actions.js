@@ -70,7 +70,8 @@ export class LootSheetActions {
       "data.quantity": item.data.quantity - quantity
     };
 
-    if (update["data.quantity"] === 0) {
+    let removeEmptyStacks = game.settings.get("lootsheetnpcpf1", "removeEmptyStacks");
+    if (update["data.quantity"] === 0 && removeEmptyStacks) {
       source.deleteEmbeddedEntity("OwnedItem", itemId);
     } else {
       source.updateEmbeddedEntity("OwnedItem", update);
