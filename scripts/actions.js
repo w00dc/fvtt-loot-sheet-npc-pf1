@@ -210,7 +210,7 @@ export class LootSheetActions {
   /**
    * Quick function to do a trasaction between a seller (source) and a buyer (target)
    */
-  static transaction(speaker, seller, buyer, itemId, quantity) {
+  static async transaction(speaker, seller, buyer, itemId, quantity) {
     console.log("Loot Sheet | Transaction")
 
     let sellItem = seller.getEmbeddedEntity("OwnedItem", itemId);
@@ -228,6 +228,7 @@ export class LootSheetActions {
     itemCost = itemCost * sellerModifier;
     itemCost *= quantity;
     let buyerFunds = duplicate(buyer.data.data.currency);
+    let buyerFundsAlt = duplicate(buyer.data.data.altCurrency);
     const conversionRate = {
       "pp": 10,
       "gp": 1,
@@ -235,12 +236,16 @@ export class LootSheetActions {
       "cp": 0.01
     };
     let buyerFundsAsGold = 0;
+    let buyerFundsAsGoldAlt = 0;
 
     for (let currency in buyerFunds) {
       buyerFundsAsGold += Math.floor(buyerFunds[currency] * conversionRate[currency]);
     }
+    for (let currency in buyerFundsAlt) {
+      buyerFundsAsGoldAlt += Math.floor(buyerFundsAlt[currency] * conversionRate[currency]);
+    }
 
-    if (itemCost > buyerFundsAsGold) {
+    if (itemCost > buyerFundsAsGold + buyerFundsAsGoldAlt) {
       LootSheetActions.errorMessageToActor(buyer, game.i18n.localize("ERROR.lsNotEnougFunds"));
       return;
     }
@@ -256,7 +261,33 @@ export class LootSheetActions {
       }
     }
     
-    const DEBUG = false;
+    // cost can be paid with funds
+    if (itemCost <= buyerFundsAsGold) {
+      buyerFunds = LootSheetActions.removeCostFromFunds(buyer, itemCost, buyerFunds, conversionRate);
+      await buyer.update({ "data.currency": buyerFunds });
+    }
+    // cost must also be paid with weightless funds
+    else {
+      buyerFunds = LootSheetActions.removeCostFromFunds(buyer, buyerFundsAsGold, buyerFunds, conversionRate);
+      buyerFundsAlt = LootSheetActions.removeCostFromFunds(buyer, itemCost - buyerFundsAsGold, buyerFundsAlt, conversionRate);
+      await buyer.update({ "data.currency": buyerFunds, "data.altCurrency": buyerFundsAlt });
+    }
+    
+
+    let moved = LootSheetActions.moveItem(seller, buyer, itemId, quantity);
+
+    if(moved) {
+      LootSheetActions.chatMessage(
+        speaker, buyer,
+        game.i18n.format("ls.chatPurchase", { buyer: buyer.name, quantity: quantity, name: moved.item.showName, cost: originalCost }),
+        moved.item);
+    }
+  }
+  
+  /**
+   * Remove cost from actor's funds using provided conversionRate
+   */
+  static removeCostFromFunds(buyer, cost, funds, conversionRate, DEBUG = false) {
     if (DEBUG) console.log("Loot Sheet | Conversion rates: ");
     if (DEBUG) console.log(conversionRate);
     
@@ -266,17 +297,17 @@ export class LootSheetActions {
       //console.log("Rate: " + conversionRate[currency])
       if(conversionRate[currency] < 1) {
         const ratio = 1/conversionRate[currency]
-        const value = Math.min(itemCost, Math.floor(buyerFunds[currency] / ratio))
-        if (DEBUG) console.log("Loot Sheet | BuyerFunds " + currency + ": " + buyerFunds[currency])
+        const value = Math.min(cost, Math.floor(funds[currency] / ratio))
+        if (DEBUG) console.log("Loot Sheet | BuyerFunds " + currency + ": " + funds[currency])
         if (DEBUG) console.log("Loot Sheet | Ratio: " + ratio)
         if (DEBUG) console.log("Loot Sheet | Value: " + value)
-        itemCost -= value
-        buyerFunds[currency] -= value * ratio
+        cost -= value
+        funds[currency] -= value * ratio
       } else {
-        const value = Math.min(itemCost, Math.floor(buyerFunds[currency] * conversionRate[currency]))
-        itemCost -= value
+        const value = Math.min(cost, Math.floor(funds[currency] * conversionRate[currency]))
+        cost -= value
         const lost = Math.ceil( value / conversionRate[currency] )
-        buyerFunds[currency] -= lost
+        funds[currency] -= lost
         remainingFond += lost * conversionRate[currency] - value
         if (DEBUG) console.log("Loot Sheet | Value+: " + value)
         if (DEBUG) console.log("Loot Sheet | Lost+: " + lost)
@@ -284,9 +315,10 @@ export class LootSheetActions {
       }
     }
     
-    if(itemCost > 0) {
+    if(cost > 0) {
       LootSheetActions.errorMessageToActor(buyer, game.i18n.localize("ERROR.lsCurrencyConversionFailed"));
-      return ui.notifications.error(game.i18n.localize("ERROR.lsCurrencyConversionFailed"));
+      ui.notifications.error(game.i18n.localize("ERROR.lsCurrencyConversionFailed"));
+      throw "Couldn't remove from funds"
     }
     
     //console.log("RemainingFond: " + remainingFond)
@@ -294,9 +326,9 @@ export class LootSheetActions {
     if(remainingFond > 0) {
       for (const currency of Object.keys(conversionRate)) {
         if (conversionRate[currency] <= remainingFond) {
-          buyerFunds[currency] += Math.floor(remainingFond / conversionRate[currency]);
+          funds[currency] += Math.floor(remainingFond / conversionRate[currency]);
           remainingFond = remainingFond % conversionRate[currency];
-          if (DEBUG) console.log("Loot Sheet | buyerFunds " + currency + ": " + buyerFunds[currency]);
+          if (DEBUG) console.log("Loot Sheet | funds " + currency + ": " + funds[currency]);
           if (DEBUG) console.log("Loot Sheet | remainingFond: " + remainingFond);
         }
       }
@@ -305,22 +337,11 @@ export class LootSheetActions {
     if(remainingFond > 0) {
       LootSheetActions.errorMessageToActor(buyer, game.i18n.localize("ERROR.lsCurrencyConversionFailed"));
       return ui.notifications.error(game.i18n.localize("ERROR.lsCurrencyConversionFailed"));
+      throw "Couldn't remove from funds"
     }
     
-    if (DEBUG) console.log(buyerFunds)
-
-    // Update buyer's gold from the buyer.
-    buyer.update({
-      "data.currency": buyerFunds
-    });
-    let moved = LootSheetActions.moveItem(seller, buyer, itemId, quantity);
-
-    if(moved) {
-      LootSheetActions.chatMessage(
-        speaker, buyer,
-        game.i18n.format("ls.chatPurchase", { buyer: buyer.name, quantity: quantity, name: moved.item.showName, cost: originalCost }),
-        moved.item);
-    }
+    if (DEBUG) console.log(funds)
+    return funds;
   }
   
   /**
