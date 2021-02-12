@@ -43,6 +43,7 @@
   "ls.equipment": "Equipment",
   "ls.consumables": "Consumables",
   "ls.lootType": "Loot",
+  "ls.containerType": "Containers",
   "ls.percentage": "Percentage",
   "ls.scrollof": "Scroll of {name}",
   

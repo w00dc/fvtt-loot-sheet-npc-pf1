@@ -821,6 +821,11 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
         items: [],
         type: "loot"
       },
+      containers: {
+        label: game.i18n.localize("ls.containerType"),
+        items: [],
+        type: "container"
+      },
 
     };
     
@@ -847,12 +852,13 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
         i.data.quantity = 1
       }
       
+      console.log(features)
       // Features
       if (i.type === "weapon") features.weapons.items.push(i);
       else if (i.type === "equipment") features.equipment.items.push(i);
       else if (i.type === "consumable") features.consumables.items.push(i);
       else if (i.type === "tool") features.tools.items.push(i);
-      else if (["container", "backpack"].includes(i.type)) features.containers.items.push(i);
+      else if (i.type === "container") features.containers.items.push(i);
       else if (i.type === "loot") features.loot.items.push(i);
       else { continue }
     }

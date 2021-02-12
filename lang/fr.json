@@ -43,6 +43,7 @@
   "ls.equipment": "Armures/bouclier",
   "ls.consumables": "Consommables",
   "ls.lootType": "Autres butins",
+  "ls.containerType": "Contenants",
   "ls.percentage": "Pourcentage",
   "ls.scrollof": "Parchemin de {name}",
   
