@@ -774,7 +774,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     let permissions = duplicate(this.actor.data.permission)
     permissions[playerId] = newLevel;
     //console.log(`About to change permissions are: ${JSON.stringify(permissions)}`);
-    this.actor.update( { permission: permissions }, {diff: false});    
+    this.actor.update( { permission: permissions });    
     //console.log(`Newly changed entity permissions are: ${JSON.stringify(this.actor.data.permission)}`);
     this._onSubmit(event);
   }
@@ -787,7 +787,7 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     game.users.forEach((u) => {
       if (!u.isGM) { permissions[u.id] = newLevel }
     });
-    this.actor.update( { permission: permissions }, {diff: false});
+    this.actor.update( { permission: permissions });
     this._onSubmit(event);
   }
 
