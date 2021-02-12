@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.9.0] - 2021-02-08
 ### Added
 - Buy with weightless currency (#2)
+- Limited support for containers
+### Fixed
+- Permission buttons not working #13
 
 ## [1.8.0] - 2021-02-08
 ### Added
