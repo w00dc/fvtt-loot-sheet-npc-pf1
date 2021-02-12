@@ -626,15 +626,9 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
         let totalGP = 0
         let deleteList = []
         this.actor.items.forEach( item  => {
-           if (["weapon", "equipment", "consumable", "tool", "loot"].indexOf(item.type) >= 0) {
-             let itemCost = LootSheetActions.getItemCost(item.data)
-             if( item.data.data.subType !== "tradeGoods" )
-               itemCost = itemCost / 2;
-             totalGP += itemCost * item.data.data.quantity
-             deleteList.push(item._id)
-           }
-          }
-        );
+          totalGP += LootSheetActions.getItemSaleValue(item)
+          deleteList.push(item._id)
+        });
 
         let funds = LootSheetActions.spreadFunds(totalGP, duplicate(this.actor.data.data.currency));
 
@@ -852,7 +846,6 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
         i.data.quantity = 1
       }
       
-      console.log(features)
       // Features
       if (i.type === "weapon") features.weapons.items.push(i);
       else if (i.type === "equipment") features.equipment.items.push(i);
