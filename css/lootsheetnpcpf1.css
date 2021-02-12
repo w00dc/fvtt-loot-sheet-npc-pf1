@@ -145,7 +145,7 @@ section.sheet-content.content {
 }
 
 .loot-sheet-npc.sheet.actor .inventory-list .item-controls {
-	flex: 0 0 100px !important;
+	flex: 0 0 120px !important;
 	display: flex;
 	flex-direction: row;
 	flex-wrap: wrap;
@@ -226,5 +226,13 @@ input#quantity:focus {
 }
 
 .loot-sheet-npc .fa-eye-slash {
+  color: darkred;
+}
+
+.loot-sheet-npc .fa-infinity {
+  padding: 0 2px
+}
+
+.loot-sheet-npc .enabled .fa-infinity {
   color: darkred;
 }

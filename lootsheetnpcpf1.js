@@ -76,7 +76,8 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
       return baseWeight * count;
     });
     
-    Handlebars.registerHelper('lootsheetname', function(name, quantity) {
+    Handlebars.registerHelper('lootsheetname', function(name, quantity, infinite) {
+      if(infinite) return `(∞) ${name}`
       return quantity > 1 ? `(${quantity}) ${name}` : name;
     });
 
@@ -234,6 +235,10 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     
     // Toggle Visibility
     html.find('.item-visibility').click(ev => this._toggleVisibility(ev));
+    
+    // Infinite quantity
+    html.find('.item-quantity-infinite').click(ev => this._toggleInfiniteQuantity(ev));
+
   }
 
   /* -------------------------------------------- */
@@ -581,6 +586,26 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
   }
   
   /* -------------------------------------------- */
+
+  /**
+   * Handle infinite quantity
+   * @private
+   */
+  _toggleInfiniteQuantity(event) {
+    event.preventDefault();
+    let itemId = $(event.currentTarget).parents(".item").attr("data-item-id");
+    let item = this.actor.getOwnedItem(itemId);
+    if(item) {
+      console.log(item)
+      if(!item.getFlag(LootSheetPf1NPC.MODULENAME, "infinite")) {
+        item.setFlag(LootSheetPf1NPC.MODULENAME, "infinite", true);
+      } else {
+        item.unsetFlag(LootSheetPf1NPC.MODULENAME, "infinite");
+      }
+    }
+  }
+  
+  /* -------------------------------------------- */
   
   /**
    * Handle conversion to loot. This function converts (and removes) all items
@@ -818,6 +843,10 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
         continue;
       }
       
+      if (i.flags.lootsheetnpcpf1 && i.flags.lootsheetnpcpf1.infinite) {
+        i.data.quantity = 1
+      }
+      
       // Features
       if (i.type === "weapon") features.weapons.items.push(i);
       else if (i.type === "equipment") features.equipment.items.push(i);
@@ -977,6 +1006,9 @@ class LootSheetPf1NPC extends ActorSheetPFNPC {
     }
     // Item from an actor
     else if (game.user.isGM) {
+      console.log(event)
+      console.log(data)
+      console.log(await Item.fromDropData(data))
       let sourceActor = game.actors.get(data.actorId);
       let targetActor = this.token ? canvas.tokens.get(this.token.id).actor : this.actor;
       LootSheetActions.dropOrSellItem(game.user, targetActor, sourceActor, data.data._id)

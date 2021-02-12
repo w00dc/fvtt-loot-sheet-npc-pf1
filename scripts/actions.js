@@ -65,16 +65,25 @@ export class LootSheetActions {
     }
 
     let newItem = duplicate(item);
-    const update = {
-      _id: itemId,
-      "data.quantity": item.data.quantity - quantity
-    };
+    
+    // remove unecessary flags
+    if(newItem.flags.lootsheetnpcpf1) {
+      delete(newItem.flags.lootsheetnpcpf1)
+    }
 
-    let removeEmptyStacks = game.settings.get("lootsheetnpcpf1", "removeEmptyStacks");
-    if (update["data.quantity"] === 0 && removeEmptyStacks) {
-      source.deleteEmbeddedEntity("OwnedItem", itemId);
-    } else {
-      source.updateEmbeddedEntity("OwnedItem", update);
+    // decrease the quantity (unless infinite)
+    if(!item.flags.lootsheetnpcpf1 || !item.flags.lootsheetnpcpf1.infinite) {
+      const update = {
+        _id: itemId,
+        "data.quantity": item.data.quantity - quantity
+      };
+
+      let removeEmptyStacks = game.settings.get("lootsheetnpcpf1", "removeEmptyStacks");
+      if (update["data.quantity"] === 0 && removeEmptyStacks) {
+        source.deleteEmbeddedEntity("OwnedItem", itemId);
+      } else {
+        source.updateEmbeddedEntity("OwnedItem", update);
+      }
     }
 
     newItem.data.quantity = quantity;
