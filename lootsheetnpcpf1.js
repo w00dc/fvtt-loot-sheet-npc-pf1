@@ -4,7 +4,7 @@
 
 window.require=function(name) { throw "Dummy require function!!" };
 
-import { ActorSheetPFNPC } from "../../systems/pf1/module/actor/sheets/npc.js";
+import { ActorSheetPFNPC } from "../../systems/pf1/pf1.js";
 import { LootSheetActions } from "./scripts/actions.js";
 
 class QuantityDialog extends Dialog {
@@ -1049,7 +1049,7 @@ Hooks.on('preCreateOwnedItem', (actor, item, data) => {
   // If the target actor is using the LootSheetPf1NPC then check in the item
   if (actor.sheet instanceof LootSheetPf1NPC) {
     // validate the type of item to be "moved" or "added"
-    if(!["weapon","equipment","consumable","loot"].includes(item.type)) {
+    if(!["weapon","equipment","consumable","loot","container"].includes(item.type)) {
       ui.notifications.error(game.i18n.localize("ERROR.lsInvalidType"));
       return false;
     }
@@ -1279,7 +1279,7 @@ Hooks.on("getActorDirectoryEntryContext", (html, options) => {
         tokens.forEach( async function(t) {
           const effects = getProperty( t.actorData, "effects" )
           // to be considered dead, a token must have the "dead" overlay effect (either from combat tracker or directly)
-          if( effects && effects.filter( e => getProperty(e, "flags.core.statusId" ) == "dead" ).length > 0) {
+          if( effects && effects.filter( e => [CONFIG.Combat.defeatedStatusId, "combat-utility-belt.dead"].indexOf(getProperty(e, "flags.core.statusId")) >= 0 ).length > 0) {
             let actor = canvas.tokens.get(t._id).actor
             if( !(actor.sheet instanceof LootSheetPf1NPC) ) {
               await actor.setFlag("core", "sheetClass", "PF1.LootSheetPf1NPC");
