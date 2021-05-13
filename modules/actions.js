@@ -100,9 +100,9 @@ export class LootSheetActions {
 
   static spreadFunds(totalGP, funds) {
     const gpBare = Math.floor(totalGP),
-      spLeftOver = (totalGP - gpBare) * 10,
+      spLeftOver = (totalGP - gpBare) * 100,
       spBare = Math.floor(spLeftOver),
-      cpLeftOver = (spLeftOver - spBare) * 10,
+      cpLeftOver = (spLeftOver - spBare) * 100,
       cpBare = Math.floor(cpLeftOver);
     funds.gp += gpBare;
     funds.sp += spBare;
@@ -239,10 +239,10 @@ export class LootSheetActions {
     let buyerFunds = duplicate(buyer.data.data.currency);
     let buyerFundsAlt = duplicate(buyer.data.data.altCurrency);
     const conversionRate = {
-      "pp": 10,
+      "pp": 100,
       "gp": 1,
-      "sp": 0.1,
-      "cp": 0.01
+      "sp": 0.01,
+      "cp": 0.0001
     };
     let buyerFundsAsGold = 0;
     let buyerFundsAsGoldAlt = 0;
